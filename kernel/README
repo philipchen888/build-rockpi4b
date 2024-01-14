@@ -1,0 +1,9 @@
+Compile vendor kernel:
+
+git clone https://github.com/radxa/kernel --depth=1 -b 4.4.154-90-rockchip
+cd kernel; mkdir tmp; cd tmp; mkdir lib;
+cd ../../; mkdir out;
+
+make kernel
+
+The result is in ./out/boot.img

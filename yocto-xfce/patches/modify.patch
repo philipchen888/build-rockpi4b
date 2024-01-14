@@ -1,0 +1,22 @@
+diff --git a/Makefile b/Makefile
+index e7703616c5..5911fc9c40 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1107,7 +1107,7 @@ endef
+ 
+ # Timestamp file to make sure that binman always runs
+ .binman_stamp: $(INPUTS-y) FORCE
+-ifeq ($(CONFIG_BINMAN),y)
++ifeq ($(CONFIG_BINMAN2),y)
+ 	$(call if_changed,binman)
+ endif
+ 	@touch $@
+@@ -1512,7 +1512,7 @@ u-boot.cnt: u-boot.bin FORCE
+ flash.bin: spl/u-boot-spl.bin u-boot.cnt FORCE
+ 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+ else
+-ifeq ($(CONFIG_BINMAN),y)
++ifeq ($(CONFIG_BINMAN2),y)
+ flash.bin: spl/u-boot-spl.bin $(INPUTS-y) FORCE
+ 	$(call if_changed,binman)
+ else

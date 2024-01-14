@@ -1,0 +1,71 @@
+Build bullseye-flightaware sdcard for Radxa rockpi4b:
+
+Parts required:
+1. Car/Indoor Antenna for FlightAware.
+2. Band-Pass SMA Filter.
+3. ADS-B 1090MHz PRO USB Stick.
+
+Input files: ../uboot/out/idbloader.img
+             ../uboot/out/u-boot.img
+             ../uboot/out/trust.img
+             ../linux/out/boot.img
+             ../rootfs-bullseye/linaro-rootfs.img
+
+./mksdcardimg.sh
+
+The result is in sdcard.img
+
+sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+Eject sdcard, plugin sdcard, cp ./flightaware/* /media/$USER/b*/home/linaro
+sync
+Eject sdcard
+
+Plugin sdcard to SBC
+Login:
+Username: linaro
+Password: linaro
+uname -a
+lsb_release -a
+sudo ifconfig
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+date
+sudo apt update
+sudo apt upgrade
+sync
+sudo shutdown -h now
+Power off, power on
+Disable power saving and screen saver.
+date
+
+sudo apt install chrpath tcl-dev python3-dev python3-venv python3-setuptools python3-pip libboost-system-dev libboost-program-options-dev libboost-regex-dev libboost-filesystem-dev patchelf itcl3 tcllib tclx8.4 librtlsdr-dev libbladerf-dev libhackrf-dev liblimesuite-dev libsoapysdr-dev libusb-1.0-0-dev pkg-config libncurses5-dev lighttpd
+
+pip3 install pyelftools
+
+make all
+
+Change feeder-id on the last line of piaware.conf or comment out for the first time.
+For the first time you need to claim feeder-id from https://flightaware.com/adsb/piaware/claim after plugin ADS-B 1090MHz PRO USB Stick, filter and antenna.
+
+If you want to use old feeder-id without claiming a new one, change the last line of piaware.conf to use your old feeder-id.
+
+sudo cp piaware.conf /etc
+sync
+sudo reboot
+Connect Antenna to SMA Filter. Connect SMA Filter to ADS-B USB Stick. Plugin ADS-B USB Stick to SBC.
+date
+
+./startpiaware
+sudo piaware-status  ( run sudo piaware-status serveral times till dump1090 and piaware are connected )
+
+When everything is ok and ready to capture data that you sent to flightaware:
+
+nc 127.0.0.1 30003 | egrep --line-buffered 'MSG,1,|MSG,3,|MSG,5,' >> flight_tracks.csv
+
+After a few minutes, CTRL-C to stop caturing.
+vi flight_tracks.csv
+It has aircraft's info, date, time, GPS position etc.
+
+./flightdata.py
+
+Website is in https://flightaware.com/adsb/stats/user/username

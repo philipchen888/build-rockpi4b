@@ -1,0 +1,15 @@
+Compile mainline kernel:
+
+sudo apt-get install libgnutls28-dev
+git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
+cp rk3399-rock-pi-4b.dts ./linux/arch/arm64/boot/dts/rockchip/
+cp rk3399-rock-pi-4.dtsi ./linux/arch/arm64/boot/dts/rockchip/
+delete rk3399-rock-pi-4a-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+delete rk3399-rock-pi-4b-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+delete rk3399-rock-pi-4c.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+
+cd linux; mkdir tmp; cd tmp; mkdir lib;
+cd ../../; mkdir out;
+make kernel
+
+The result is in ./out/boot.img

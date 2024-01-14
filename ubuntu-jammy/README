@@ -1,0 +1,68 @@
+Build ubuntu-jammy sdcard for Radxa rockpi4b:
+
+Input files: ../uboot/out/idbloader.img
+             ../uboot/out/uboot.img
+             ../uboot/out/trust.img
+             ../linux/out/boot.img
+             ../rootfs-ubuntu-jammy/linaro-rootfs.img
+
+./mksdcardimg.sh
+
+The result is in sdcard.img
+
+sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+Eject sdcard, plugin sdcard again.
+sudo vi /media/$USER/b*/etc/gdm3/custom.conf ( uncomment WaylandEnable=false )
+sync
+Eject sdcard
+
+Plugin sdcard to SBC
+Login:
+Username: linaro
+Password: linaro
+uname -a
+lsb_release -a
+sudo ifconfig
+sudo vi /etc/apt/sources.list ( replace with http://mirrors.ocf.berkeley.edu/ubuntu-ports )
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+sync
+sudo reboot
+
+ps aux | grep -i apt ( wait till all apt done except grep -i apt )
+sudo apt update
+sudo apt upgrade
+sudo apt dist-upgrade
+sudo vi /etc/systemd/logind.conf ( change to follows:
+HandlePowerKey=ignore
+HandleSuspendKey=ignore
+HandleHibernateKey=ignore
+HandleLidSwitch=ignore
+
+sync
+sudo shutdown -h now
+Power off, power on
+ps aux | grep -i apt ( wait till all apt done except grep -i apt )
+glxinfo | grep OpenGL
+date
+
+sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools ffmpeg mpv glmark2 pandoc
+
+speedtest-cli
+
+glmark2
+
+firefox -> youtube.com -> search YmDNhi07_Ho
+
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
+
+sudo rfkill list
+sudo rfkill unblock bluetooth
+hciconfig hci0
+hcitool dev
+hciconfig -a

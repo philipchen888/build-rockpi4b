@@ -1,0 +1,125 @@
+This is to test gpio in baremetal for Radxa rockpi4b.
+
+Parts required:
+1. Seeed Grove starter kit LED, button, buzzer, Grove-LCD RGB Backlight V3.0 JHD1313M2.
+2. Analog Servo.
+3. Adafruit SSD1306 128x32 SPI OLED Display.
+4. serial USB cable.
+
+The following 11 tests are included: ( see below for tests summary )
+1. uart test
+2. led test
+3. button test
+4. pwm led test
+5. i2c lcd test
+6. tongsong
+7. servo
+8. spi oled test
+9. ddr test
+a. mmc test
+b. dmac test
+
+Steps to test gpio:
+
+   \rm -rf rkbin
+   git clone https://github.com/rockchip-linux/rkbin.git
+   make clean
+   make test
+   ./mksdcardimg.sh
+   Plugin sdcard to PC.
+   sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+   Eject sdcard.
+   Plugin sdcard to rockpi4b.
+   Connect rockpi4b gpio pin  8 to serial USB cable TX ( white ).
+   Connect rockpi4b gpio Pin 10 to serial USB cable RX ( green ).
+   Connect rockpi4b gpio pin  9 to serial USB cable ground ( black ).
+   Type "script ~/outputfile.txt" on PC.
+   Plugin serial USB cable to PC.
+   Type "sudo screen /dev/ttyUSB0 1500000" on PC.
+   Power on rockpi4b.
+   It should display the test menu with 11 test items on PC.
+   After tests done, hit q to exit tests.
+   Power off rockpi4b.
+   Unplug serial USB cable from PC.
+   Type "exit" on PC.
+   vi ~/outputfile.txt
+
+-----------------------------------------------------------------------------
+
+Here are the summary of the tests:
+
+These tests used Seeed Grove starter kit LED, button, buzzer, Grove-LCD RGB Backlight V3.0 JHD1313M2, Analog Servo and Adafruit SSD1306 128x32 SPI OLED Display.
+
+1. uart test.
+   This test is to test uart tx and rx.
+   Connect gpio pin  8 to serial USB cable TX.
+   Connect gpio pin 10 to serial USB cable RX.
+   Connect gpio pin 39 to serial USB cable ground.
+   Enter a sentence and hit return key.
+
+2. led test.
+   This test will blink led 5 times.
+   Connect gpio pin 32 to led control.
+   Connect gpio pin  2 to led 5V.
+   Connect gpio pin  9 to led ground.
+
+3. button test.
+   Push button 10 times. The led will on/off 10 times.
+   Connect gpio pin 32 to led control.
+   Connect gpio pin  2 to led 5V.
+   Connect gpio pin  9 to led ground.
+   Connect gpio pin 23 to button control.
+   Connect gpio pin  4 to button 5V.
+   Connect gpio pin  6 to button ground.
+
+4. pwm led test.
+   This test will dim led 10 times.
+   Connect gpio pin 13 to led control. ( pwm 1 ).
+   Connect gpio pin  2 to led 5V.
+   Connect gpio pin  9 to led ground.
+
+5. i2c lcd test.
+   This test will change lcd backlight color for 5 cycles.
+   Then it will display two sentences on lcd display.
+   Connect gpio pin  3 to lcd display SDA. ( i2c-7 ).
+   Connect gpio pin  5 to lcd display SCL.
+   Connect gpio pin  2 to lcd display 5V.
+   Connect gpio pin  9 to lcd display ground.
+
+6. tongsong.
+   This test will generate song using buzzer.
+   Connect gpio pin 13 to buzzer control. ( pwm 1 )
+   Connect gpio pin  2 to buzzer 5V.
+   Connect gpio pin  9 to buzzer ground.
+
+7. servo.
+   This test will turn servo 45 degree - 90 degree - 45 degree - 0 degree etc.
+   Connect gpio pin 13 to servo control. ( pwm 1 )
+   Connect gpio pin  2 to servo 5V.
+   Connect gpio pin  9 to servo ground.
+
+8. spi oled test.
+   This test will show some ascii characters on the oled display.
+   Connect gpio pin 32 to oled display DC.  ( spi-2 )
+   Connect gpio pin 24 to oled display CS.
+   Connect gpio pin 19 to oled display TX.
+   Connect gpio pin 23 to oled display CLK.
+   Connect gpio pin  1 to oled display 3.3V.
+   Connect gpio pin  9 to oled display ground.
+
+9. ddr test.
+   This test will write random data to ddr address from 0x10000 to 0x7ffffff
+   Then read ddr address from 0x10000 to 0x7ffffff compare to expected data.
+   It will stop when any data mismatch.
+
+a. mmc test.
+   This test will read sdcard lba 32768.
+   Then read sdcard lba 6283260.
+   Then write incremental data to sdcard lba 6283260.
+   Then read data from sdcard lba 6283260.
+
+b. dmac test.
+   This test will dma from ddr address 0x1000000 to ddr address 0x20000000 for 16 KB.
+   Then dma from ddr address 0x20000000 to ddr address 0x30000000 for 16 KB.
+
+-----------------------------------------------------------------------------

@@ -1,0 +1,11 @@
+Compile uboot:
+
+git clone https://github.com/u-boot/u-boot.git -b u-boot-2023.07.y
+mkdir out
+make u-boot
+
+The result is in ./out/u-boot.img
+                       trust.img
+                       idbloader.img
+
+make clean

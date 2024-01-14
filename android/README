@@ -1,0 +1,65 @@
+Build android sdcard image for Radxa rockpi4b.
+
+   Download from https://wiki.radxa.com/Rockpi4/downloads
+   android: select rock4b Android 10
+   tvbox: select rock4b Android 9 TV
+   wget https://rock.sh/rockpi4b-android10-gpt-download/ROCKPI-4AB-2020-10-15-11-14-gpt.zip
+   unzip ROCKPI-4AB-2020-10-15-11-14-gpt.zip
+  
+   sudo dd if=./ROCKPI-4AB-2020-10-15-11-14-gpt.img of=/dev/sda bs=4096 conv=notrunc,fsync
+
+Plugin sdcard to Radxa rockpi4b.
+After setting up android, turn on developer mode.
+Settings -> About phone -> hit build number 7 times -> back
+System -> Advanced -> Developer options -> Open net adb
+Power -> shutdown, power on.
+
+adb connect 192.168.86.xxx
+adb root
+adb connect 192.168.86.xxx
+adb shell
+du -h /system
+mount -o rw,remount /
+exit
+
+To install apks:
+adb push helloworld.apk /sdcard
+adb push happybirthday.apk /sdcard
+adb push diceroller.apk /sdcard
+adb push drawing.apk /sdcard
+adb push drawshape.apk /sdcard
+adb push kaleidoscope.apk /sdcard
+adb push myanalogclock.apk /sdcard
+adb push randomsong.apk /sdcard
+adb shell
+cd /system/priv-app
+ln -s /sdcard/helloworld.apk .
+ln -s /sdcard/happybirthday.apk .
+ln -s /sdcard/diceroller.apk .
+ln -s /sdcard/drawing.apk .
+ln -s /sdcard/drawshape.apk .
+ln -s /sdcard/kaleidoscope.apk .
+ln -s /sdcard/myanalogclock.apk .
+ln -s /sdcard/randomsong.apk .
+exit
+adb install -r helloworld.apk
+adb install -r happybirthday.apk
+adb install -r diceroller.apk
+adb install -r drawing.apk
+adb install -r drawshape.apk
+adb install -r kaleidoscope.apk
+adb install -r myanalogclock.apk
+adb install -r randomsong.apk
+adb shell
+mount -o ro,remount /
+exit
+
+To uninstall apks:
+adb uninstall com.example.helloworld
+adb uninstall com.example.happybirthday
+adb uninstall com.example.diceroller
+adb uninstall com.example.drawing
+adb uninstall com.example.drawshape
+adb uninstall com.example.kaleidoscope
+adb uninstall com.example.myanalogclock
+adb uninstall com.example.randomsong
