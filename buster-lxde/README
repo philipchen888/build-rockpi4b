@@ -12,7 +12,6 @@ The result is in sdcard.img
 
 sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
 
-Plugin bluetooth usb dongle to SBC.
 Plugin sdcard to SBC
 Login:
 Username: linaro
