@@ -1,6 +1,7 @@
 Compile vendor kernel:
 
 git clone https://github.com/radxa/kernel --depth=1 -b 4.4.154-90-rockchip
+vi kernel/scripts/dtc/dtc-lexer.lex.c ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
 cd kernel; mkdir tmp; cd tmp; mkdir lib;
 cd ../../; mkdir out;
 

@@ -3,19 +3,18 @@ This is to build rockpi4b sdcard image for Radxa rockpi4b:
 Steps to build rockpi4b sdcard image:
 
 1. git clone https://github.com/philipchen888/build-rockpi4b.git
-   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler python swig libmpc-dev
+   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler swig libmpc-dev debootstrap debhelper kpartx gdisk devscripts isolinux po4a libgnutls28-dev mtools python-is-python3
+   pip install pyelftools
 
 2. Install cross compiler and live-build:
    wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
    sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz  -C /usr/local/
    wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
    sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/local/
-   sudo apt-get install debootstrap debhelper kpartx gdisk devscripts dh-systemd isolinux po4a
-   #wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20210407/live-build_20210407.tar.xz
-   #tar xvf live-build_20210407.tar.xz
    wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20230502/live-build_20230502.tar.xz
    tar xvf live-build_20230502.tar.xz
    cd live-build
+   vi Makefile ( search Installing manpages, delete from after done before uninstall: )
    sudo make install
 
    linux-firmware is in:
@@ -35,6 +34,7 @@ Steps to build rockpi4b sdcard image:
    git clone https://github.com/radxa/kernel --depth=1 -b 4.4.154-90-rockchip
    cd kernel; mkdir tmp; cd tmp; mkdir lib;
    cd ../../; mkdir out;
+   vi kernel/scripts/dtc/dtc-lexer.lex.c ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
    make kernel
 
    The result is in ./out/boot.img
