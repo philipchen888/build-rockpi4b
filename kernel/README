@@ -2,8 +2,9 @@ Compile vendor kernel:
 
 sudo apt -y install gcc-aarch64-linux-gnu
 git clone https://github.com/radxa/kernel --depth=1 -b 4.4.154-90-rockchip
-vi kernel/scripts/dtc/dtc-lexer.l dtc-lexer.lex.c_shipped ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
-vi ./kernel/arch/arm64/boot/dts/rockchip/rk3399.dtsi ( change max-link-speed = <1>; to max-link-speed = <2>; )
+vi kernel/scripts/dtc/dtc-lexer.lex.c ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
+cd kernel; mkdir tmp; cd tmp; mkdir lib;
+cd ../../; mkdir out;
 
 \rm -rf out; mkdir out;
 make kernel
