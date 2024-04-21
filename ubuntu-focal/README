@@ -10,9 +10,11 @@ Input files: ../uboot/out/idbloader.img
 
 The result is in sdcard.img
 
+Plugin NVME SSD to PC.
 sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+Eject NVME SSD from PC.
 
-Plugin sdcard to SBC
+Plugin sdcard and NVME SSD to SBC
 Login:
 Username: linaro
 Password: linaro

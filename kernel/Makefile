@@ -11,7 +11,8 @@ clean:
 
 buildkernel:
 	cd kernel; \
-	cp ../patches/rockpi-4b-linux.dts arch/arm64/boot/dts/rockchip; \
+	cp ../patches/rockpi-4b-linux.dts ./arch/arm64/boot/dts/rockchip/; \
+	sudo \rm -rf tmp; mkdir tmp; mkdir -p tmp/lib; \
 	make ARCH=arm64 clean; \
 	make ARCH=arm64 rockchip_linux_defconfig; \
 	make ARCH=arm64 -j4; \

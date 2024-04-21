@@ -25,7 +25,7 @@ finish() {
 }
 
 echo Format rootfs to ext4
-mkfs.ext4 -U ${ROOT_UUID} ${ROOTFSIMAGE}
+mkfs.ext4 -L "rootfs" -U ${ROOT_UUID} ${ROOTFSIMAGE}
 
 echo Mount rootfs to ${MOUNTPOINT}
 sudo mount  ${ROOTFSIMAGE} ${MOUNTPOINT}

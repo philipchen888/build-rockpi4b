@@ -2,14 +2,12 @@ Compile mainline kernel:
 
 sudo apt-get install libgnutls28-dev
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
-cp rk3399-rock-pi-4b.dts ./linux/arch/arm64/boot/dts/rockchip/
-cp rk3399-rock-pi-4.dtsi ./linux/arch/arm64/boot/dts/rockchip/
-delete rk3399-rock-pi-4a-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
-delete rk3399-rock-pi-4b-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
-delete rk3399-rock-pi-4c.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+vi ./linux/arch/arm64/boot/dts/rockchip/rk3399.dtsi ( change max-link-speed = <1>; to max-link-speed = <2>; )
+vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change lpo to ext_clock )
+vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts ( change bcm4345c5 to bcm43438-bt, change IRQ_TYPE_LEVEL_HIGH to GPIO_ACTIVE_HIGH, change lpo to ext_clock )
+vi ./linux/arch/arm64/configs/defconfig ( change m to y for CONFIG_SATA_AHCI=y CONFIG_BLK_DEV_NVME=y CONFIG_EXT4_FS=y CONFIG_PCIE_ROCKCHIP_HOST=y CONFIG_PHY_ROCKCHIP_PCIE=y CONFIG_PCIEPORTBUS=y )
 
-cd linux; mkdir tmp; cd tmp; mkdir lib;
-cd ../../; mkdir out;
+\rm -rf out; mkdir out;
 make kernel
 
-The result is in ./out/boot.img
+The result is in ./out/boot.img 

@@ -9,3 +9,9 @@ The result is in ./out/u-boot.img
                        idbloader.img
 
 make clean
+
+./mksdcardimg.sh
+
+Plugin sdcard to PC.
+sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+Eject sdcard from PC.
