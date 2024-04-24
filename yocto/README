@@ -15,7 +15,8 @@ Build yocto sdcard image for Radxa rockpi4b:
    cd poky; source oe-init-build-env;
    bitbake -s
    bitbake -c cleansstate radxa-desktop-image u-boot-rockchip
-   bitbake -k u-boot-rockchip  ( if fail try again )
+   bitbake -k u-boot-rockchip  ( if linux-rockpi-4-4.4.154-r1 failed to compile, vi poky/build/tmp/work-shared/rockpi-4b-rk3399/kernel-source/scripts/dtc/dtc-lexer.lex.c_shipped and dtc-lexer.l, change YYLTYPE yylloc; to extern YYLTYPE yylloc;, then bitbake -k u-boot-rockchip again )
+   if rockpi-4b-rk3399': No such file or directory, then bitbake -k u-boot-rockchip again
    bitbake -k radxa-desktop-image
 
    The result is in ./tmp/deploy/images/rockpi-4b-rk3399/radxa-desktop-image-rockpi-4b-rk3399-gpt.img

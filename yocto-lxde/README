@@ -14,7 +14,8 @@ Build yocto lxde-desktop sdcard image for Radxa rockpi4b:
 
    cd poky; source oe-init-build-env;
    bitbake -s
-   bitbake -c cleansstate core-image-x11
+   bitbake -c cleansstate u-boot-rockchip core-image-x11
+   bitbake -k u-boot-rockchip
    bitbake -k core-image-x11
 
    The result is in ./tmp/deploy/images/rockpi-4b-rk3399/core-image-x11-rockpi-4b-rk3399-gpt.img

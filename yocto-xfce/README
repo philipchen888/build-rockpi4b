@@ -13,7 +13,8 @@ Build yocto xfce-desktop sdcard image for Radxa rockpi4b:
 
    cd poky; source oe-init-build-env;
    bitbake -s
-   bitbake -c cleansstate xfce-desktop-image
+   bitbake -c cleansstate u-boot-rockchip xfce-desktop-image
+   bitbake -k u-boot-rockchip
    bitbake -k xfce-desktop-image
 
    The result is in ./tmp/deploy/images/rockpi-4b-rk3399/xfce-desktop-image-rockpi-4b-rk3399-gpt.img
