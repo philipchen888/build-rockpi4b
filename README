@@ -6,6 +6,7 @@ Parts needed:
 3. Sandisk 64GB micro sdcard.    ( install u-boot in sdcard )
 4. Host PC with ubuntu 22.
 5. M.2 NVMe SSD enclosure.
+6. Sandisk SATA SSD 64GB with USB2 cable.
 
 Steps to build rockpi4b sdcard image:
 
@@ -149,3 +150,5 @@ Steps to build rockpi4b sdcard image:
 27. cd ~/build-rockpi4b/bullseye-flightaware  ( flightaware in bullseye-lxde ) 
 
 28. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
+
+29. cd ~/build-rockpi4b/fedora          ( Build fedora image )

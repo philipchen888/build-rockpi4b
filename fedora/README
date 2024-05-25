@@ -1,0 +1,114 @@
+Build fedora sdcard image for rockpi4b:
+
+cd ~/build-rockpi4b/fedora
+wget https://dl.fedoraproject.org/pub/fedora/linux/releases/38/Workstation/aarch64/images/Fedora-Workstation-38-1.6.aarch64.raw.xz
+
+Plugin USB2 SATA SSD to PC. 
+sudo ./mksdcardimg.sh
+sudo mkfs.vfat /dev/sda4
+sudo mkfs.ext4 /dev/sda5
+sudo mkfs.ext4 /dev/sda6
+sudo fdisk -l /dev/sda
+xzcat Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
+Eject USB2 SATA SSD from PC.
+
+Plugin the sdcard which has uboot to rockpi4b.
+Plugin USB2 SATA SSD to rockpi4b. Plugin USB wifi dongle to rockpi4b. Power on rockpi4b.
+
+Disable power saving and screen saver.
+
+sudo btrfs filesystem resize max /
+df .
+uname -a
+cat /etc/fedora-release
+rpm -qa | grep -i kernel
+sudo dnf install kernel-devel-6.2.9-300.fc38.aarch64
+rpm -qa | grep -i kernel
+add: exclude=kernel* to /etc/dnf/dnf.conf
+sudo dnf update
+sudo grub2-editenv create
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo sudo grubby --set-default /boot/vmlinuz-6.2.9-300.fc38.aarch64
+sudo grubby --default-kernel
+sudo grubby --info DEFAULT
+sync
+sudo reboot
+
+df .
+uname -a
+sudo dnf install speedtest-cli glmark2 mpv yt-dlp pavucontrol openssl-devel
+glmark2-es2-wayland
+speedtest-cli
+
+aplay -l
+pavucontrol  ( select hdmi as default )
+
+yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
+
+----------------------------------------------------
+Compile and install custom kernel
+----------------------------------------------------
+
+git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
+cd linux
+sudo make mrproper
+make ARCH=arm64 defconfig
+make ARCH=arm64 all -j4               ( it may take 4 hours to compile kernel )
+sudo make ARCH=arm64 modules_install
+sudo make ARCH=arm64 dtbs_install
+sudo make ARCH=arm64 install
+sudo mv /boot/dtbs/6.9.0-geb6a9339efeb /boot/dtb-6.9.0-geb6a9339efeb; sudo \rm -rf /boot/dtbs;
+sync
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo grubby --default-kernel
+ll /boot/vmlinuz*
+sudo sudo grubby --set-default /boot/vmlinuz-6.9.0-geb6a9339efeb
+sudo grubby --default-kernel
+sync
+sudo reboot    ( If USB wifi dongle is not working, plugin ethernet cable to rockpi4b )
+
+uname -a
+speedtest-cli
+glmark2-es2
+mpv avemaria.mp4
+
+-------------------------------------------------------
+Uninstall custom kernel
+-------------------------------------------------------
+
+uname -a
+sudo dnf list installed kernel --disableexcludes=all
+# sudo dnf remove kernel-core-6.8.9-300.fc40.aarch64 kernel-core-6.8.9-100.fc38.aarch64
+sudo grubby --default-kernel
+sudo grubby --info DEFAULT
+ll /boot/vmlinuz*
+sudo grubby --set-default /boot/vmlinuz-6.2.9-300.fc38.aarch64
+sudo \rm -rf /boot/vmlinuz-6.9.0-geb6a9339efeb /boot/System.map-6.9.0-geb6a9339efeb /boot/initramfs-6.9.0-geb6a9339efeb.img /boot/dtb-6.9.0-geb6a9339efeb /boot/vmlinuz /boot/System.map
+sudo \rm /boot/dtb; sudo ln -s /boot/dtb-6.2.9-300.fc38.aarch64 /boot/dtb;
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo grubby --default-kernel
+sudo grubby --info DEFAULT
+sync
+sudo reboot   ( Relabeling may take 10 minutes )
+
+-------------------------------------------------------
+Upgrade to fedora40
+-------------------------------------------------------
+
+sudo dnf --refresh upgrade
+sudo dnf system-upgrade download --releasever=40 --exclude=kernel*
+sync
+sudo dnf system-upgrade --exclude=kernel* reboot  ( it may take 1 hour )
+
+df .
+uname -a
+cat /etc/fedora-release
+sudo dnf update --exclude=kernel*
+sync
+sudo reboot
+
+uname -a
+speedtest-cli
+glmark2-es2-wayland
+mpv avemaria.mp4
