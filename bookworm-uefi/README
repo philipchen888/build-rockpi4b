@@ -1,0 +1,168 @@
+Build bookworm-uefi sdcard image for rockpi4b:
+
+Since we don't have UEFI firmware for rockpi4b, we use fedora grub2/uefi to boot debian iso image.
+
+cd ~/Downloads
+wget https://dl.fedoraproject.org/pub/fedora/linux/releases/38/Workstation/aarch64/images/Fedora-Workstation-38-1.6.aarch64.raw.xz
+wget https://cdimage.debian.org/debian-cd/current/arm64/iso-cd/debian-12.5.0-arm64-netinst.iso
+wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/linux
+wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
+
+cd ~/build-rockpi4b/bookworm-uefi
+Plugin USB2 SATA SSD to PC. 
+sudo ./mksdcardimg.sh
+sudo mkfs.vfat /dev/sda4
+sudo mkfs.ext4 /dev/sda5
+sudo mkfs.ext4 /dev/sda6
+sudo fdisk -l /dev/sda
+xzcat ~/Downloads/Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
+
+Eject USB2 SATA SSD from PC. Plugin USB2 SATA SSD to PC again.
+cd /media/$USER/022* 
+sudo \rm -rf efi dtb-6.2.9-300.fc38.aarch64 init* lost+found symvers* System* vmlinuz* .vmlinuz* config* dtb
+sudo 7z x /home/$USER/Downloads/debian-12.5.0-arm64-netinst.iso
+sudo cp /home/$USER/Downloads/linux .
+sudo cp /home/$USER/Downloads/initrd.gz .
+sudo chmod 755 loader/entries
+sudo chmod 755 loader/entries/*
+sudo vi loader/entries/* ( change to 
+linux /linux
+initrd /initrd.gz
+delete options
+)
+cd
+sync
+sudo umount /media/$USER/022*
+sudo umount /media/$USER/fedora_fedora
+sudo parted /dev/sda ( print, rm 6, print, quit )
+Eject USB2 SATA SSD from PC.
+
+Plugin the sdcard which has uboot to rockpi4b.
+Plugin USB2 SATA SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+
+Set User name: linaro
+Partition ( Manual, SCSI1 last Free Space, Auto partion, All files in one partion, Finish, Yes )
+Select debian desktop and gnome in addition to ssh and standard system utilities.
+Force GRUB to install to the EFI ( No )
+Update NVMRAM to boot Debian ( Yes )
+Stuck at Unable to install GRUB in dummy.
+Continue without bootloader. Power off rockpi4b when installation completed.
+
+Plugin USB2 SATA SSD to PC.
+ls -la /media/$USER/
+cd /media/$USER/022*
+sudo \rm -rf initramfs* linux initrd.gz symvers* System.map* vmlinuz* .vmlinuz* config*
+sudo \rm -rf firmware install* lost+found md5sum.txt pics pool README* doc .disk css boot [BOOT] dists boot.catalog
+sudo cp /media/$USER/c4*/boot/vmlinuz-6.1.0-21-arm64 .
+sudo cp /media/$USER/c4*/boot/initrd.img-6.1.0-21-arm64 .
+sudo cp /media/$USER/c4*/boot/System.map-6.1.0-21-arm64 .
+sudo cp /media/$USER/c4*/boot/config-6.1.0-21-arm64 .
+sudo ln -s vmlinuz-6.1.0-21-arm64 vmlinuz
+sudo ln -s initrd.img-6.1.0-21-arm64 initrd.img
+sudo vi loader/entries/*conf ( change to 
+...
+linux /vmlinuz
+initrd /initrd.img
+options root=/dev/sda6 rw
+...
+)
+cd
+sync
+sudo umount /media/$USER/022*
+cd /media/$USER/c4*/lib/firmware
+sudo mkdir brcm; cd brcm;
+sudo cp /home/$USER/build-rockpi4b/bookworm-uefi/packages/* .
+cd
+sync
+sudo umount /media/$USER/c4*
+Eject USB2 SATA SSD from PC.
+
+Plugin USB2 SATA SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Disable power saving and screen saver.
+su -
+usermod -aG sudo linaro
+sudo reboot
+
+df .
+uname -a
+lsb_release -a
+date
+sudo apt update
+sudo apt upgrade
+sync
+sudo apt install net-tools
+sudo ifconfig
+
+Check if Debian is running UEFI mode:
+ls /sys/firmware/efi
+
+cd /boot
+sudo \rm -rf c* g* i* S* v*   ( except efi )
+cd
+sync
+sudo blkid /dev/sda5
+sudo vi /etc/fstab ( after first line add
+UUID=022e8743-5f78-496f-b921-0c8273b3759f   /boot  ext4   errors=remount-ro   0  1
+)
+sudo systemctl daemon-reload
+sudo mount -a
+ls -la /boot
+sync
+sudo reboot
+
+Check if Debian is running UEFI mode:
+ls /sys/firmware/efi
+
+----------------------------------------------------
+Compile and install custom kernel
+----------------------------------------------------
+
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2 mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pandoc pavucontrol zip rfkill
+
+nproc --all
+git clone https://github.com/torvalds/linux.git --depth=1
+cd linux
+sudo make mrproper
+make ARCH=arm64 defconfig
+make ARCH=arm64 all -j6               ( it may take 4 hours to compile kernel )
+sudo \rm -rf /lib/modules/*
+sudo make ARCH=arm64 modules_install
+sudo make ARCH=arm64 dtbs_install
+sudo make ARCH=arm64 install
+cd /boot
+sudo mv dtbs/6.10.0-rc1-g4a4be1ad3a6e ./dtb-6.10.0-rc1-g4a4be1ad3a6e
+sudo \rm -rf dtb dtbs
+sudo ln -s dtb-6.10.0-rc1-g4a4be1ad3a6e dtb
+sudo \rm initrd.img
+sudo ln -s initrd.img-6.10.0-rc1-g4a4be1ad3a6e initrd.img
+sudo vi loader/entries/*conf ( add this line before options
+devicetree /dtb/rockchip/rk3399-rock-pi-4b.dtb
+)
+cd
+sync
+sudo reboot
+
+sudo ifconfig
+sudo nmcli dev wifi connect "SSID" password "PASSWORD"
+Disconnect ethernet cable from rockpi4b.
+uname -a
+Check if Debian is running UEFI mode:
+ls /sys/firmware/efi
+
+glmark2-es2
+speedtest-cli
+
+aplay -l
+pavucontrol  ( select hdmi as default )
+
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
+
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a

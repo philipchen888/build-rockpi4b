@@ -1,11 +1,7 @@
 Compile mainline kernel:
 
 sudo apt-get install libgnutls28-dev
-git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
-vi ./linux/arch/arm64/boot/dts/rockchip/rk3399.dtsi ( change max-link-speed = <1>; to max-link-speed = <2>; )
-vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change lpo to ext_clock )
-vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts ( change bcm4345c5 to bcm43438-bt, change IRQ_TYPE_LEVEL_HIGH to GPIO_ACTIVE_HIGH, change lpo to ext_clock )
-vi ./linux/arch/arm64/configs/defconfig ( change m to y for CONFIG_SATA_AHCI=y CONFIG_BLK_DEV_NVME=y CONFIG_EXT4_FS=y CONFIG_PCIE_ROCKCHIP_HOST=y CONFIG_PHY_ROCKCHIP_PCIE=y CONFIG_PCIEPORTBUS=y )
+git clone https://github.com/torvalds/linux.git --depth=1
 
 \rm -rf out; mkdir out;
 make kernel
