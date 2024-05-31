@@ -152,3 +152,5 @@ Steps to build rockpi4b sdcard image:
 28. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
 
 29. cd ~/build-rockpi4b/fedora          ( Build fedora image )
+
+30. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
