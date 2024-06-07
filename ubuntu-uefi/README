@@ -1,0 +1,122 @@
+Build ubuntu-uefi sdcard image for rockpi4b:
+
+Input files: ../uboot/out/idbloader.img
+             ../uboot/out/uboot.img
+             ../uboot/out/trust.img
+
+-----------------------------------------------------------
+Download Ubuntu iso.
+-----------------------------------------------------------
+
+cd ~/Downloads
+wget https://cdimage.ubuntu.com/jammy/daily-live/current/jammy-desktop-arm64.iso
+
+-----------------------------------------------------------
+Prepare sdcard and USB2 SATA SSD.
+Burn jammy-desktop-arm64.iso to USB2 SATA SSD.
+Burn u-boot to sdcard.
+-----------------------------------------------------------
+
+cd ~/build-rockpi4b/ubuntu-uefi
+Plugin USB2 SATA SSD to PC.
+sudo ./mksatassd.sh
+sudo mkfs.vfat /dev/sda4
+sudo fdisk -l /dev/sda
+sudo mount -t vfat /dev/sda4 /mnt
+cd /mnt
+ls -la
+sudo 7z x /home/$USER/Downloads/jammy-desktop-arm64.iso
+ls -la
+cd
+sync
+sudo umount /mnt
+Eject USB2 SATA SSD from PC.
+
+Plugin sdcard to PC. 
+sudo ./mksdcard.sh
+sudo fdisk -l /dev/sda
+Eject sdcard from PC.
+
+----------------------------------------------------------------------------
+Install Ubuntu 22 to sdcard using jammy-desktop-arm64.iso in USB2 SATA SSD.
+----------------------------------------------------------------------------
+
+Plugin the sdcard which has u-boot to rockpi4b.
+Plugin USB2 SATA SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+
+Double click Install Ubuntu 22.04.4 LTS icon.
+Select Erase disk and Install Ubuntu. Click Install now.
+Click Restart now when installation completed. 
+After boot, run setup then power down Ubuntu.
+
+Unplug USB2 SATA SSD from rockpi4b.
+Plugin sdcard to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Disable power saving and screen saver.
+
+df .
+uname -a
+lsb_release -a
+date
+sudo apt update
+sudo apt upgrade
+sync
+sudo apt install net-tools openssh-server
+sudo ifconfig
+
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
+
+---------------------------------------------------------------------
+Compile and install custom kernel and install wifi bluetooth driver.
+---------------------------------------------------------------------
+
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2 mpv ffmpeg python3-pip python3-setuptools pandoc pavucontrol zip rfkill vsftpd
+
+speedtest-cli
+
+Install wifi bluetooth driver:
+sudo vi /etc/vsftpd.conf  ( anonymous_enable=NO local_enable=YES write_enable=YES )
+sudo systemctl restart vsftpd
+Ftp ~/build-rockpi4b/ubuntu-uefi/packages/* to /lib/firmware/brcm
+
+nproc --all
+git clone https://github.com/torvalds/linux.git --depth=1
+cd linux
+sudo make mrproper
+make ARCH=arm64 defconfig
+make ARCH=arm64 all -j6               ( it may take 4 hours to compile kernel )
+sudo make ARCH=arm64 modules_install
+sudo make ARCH=arm64 dtbs_install
+cd /boot
+sudo mv dtbs/6.10.0-rc2-g8a92980606e3/rockchip/rk3399-rock-pi-4b.dtb ./dtb-6.10.0-rc2-g8a92980606e3.dtb
+sudo \rm -rf dtb dtbs
+sudo ln -s dtb-6.10.0-rc2-g8a92980606e3.dtb dtb
+cd ~/linux
+sudo make ARCH=arm64 install
+cd
+sync
+sudo reboot
+
+sudo nmcli dev wifi connect "SSID" password "PASSWORD"
+Disconnect ethernet cable from rockpi4b.
+uname -a
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
+
+glmark2-es2
+speedtest-cli
+
+aplay -l
+pavucontrol  ( select hdmi as default )
+
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
+
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a
