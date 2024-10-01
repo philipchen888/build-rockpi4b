@@ -1,4 +1,4 @@
-Build bullseye-lxde pn532nfc test sdcard for Radxa rockpi4b:
+Build bullseye-pn532nfc test sdcard for Radxa rockpi4b:
 
 Parts required:
 1. nfc host controller card: Adafruit PN532 NFC Shield.
@@ -14,18 +14,13 @@ The following 8 pn532nfc tests are included:
 7. updatendef     ( write read mifareclassic_ndef )
 8. ndeftoclassic  ( change mifareclassic_ndef to mifareclassic )
 
-Input files: ../uboot/out/idbloader.img
-             ../uboot/out/u-boot.img
-             ../uboot/out/trust.img
-             ../kernel/out/boot.img          ( only vendor kernel can support pn532nfc )
+Input files: ../kernel/out/boot.img          ( only vendor kernel can support pn532nfc )
              ../rootfs-bullseyegpio/linaro-rootfs.img
 
-./mksdcardimg.sh
-
-The result is in sdcard.img
-
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject sdcard, plugin sdcard, cp ./pn532nfc/* /media/$USER/b*/home/linaro
+Plugin sdcard to PC.
+sudo ./mksdcardimg.sh
+sudo mount /dev/sda2 /mnt
+cp ./pn532nfc/* /mnt/home/linaro
 sync
 Eject sdcard
 

@@ -1,4 +1,4 @@
-Build bullseye-lxde goio test sdcard for Radxa rockpi4b:
+Build bullseye-goio test sdcard for Radxa rockpi4b:
 
 Parts required:
 1. Seeed Grove starter kit LED, button, buzzer, Grove-LCD RGB Backlight V3.0 JHD1313M2.
@@ -15,18 +15,13 @@ The following 8 tests are included: ( see below for tests summary )
 7. servo
 8. spi oled test
 
-Input files: ../uboot/out/idbloader.img
-             ../uboot/out/u-boot.img
-             ../uboot/out/trust.img
-             ../kernel/out/boot.img              ( only vendor kernel can support gpio )
+Input files: ../kernel/out/boot.img              ( only vendor kernel can support gpio )
              ../rootfs-bullseyegpio/linaro-rootfs.img
 
-./mksdcardimg.sh
-
-The result is in sdcard.img
-
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject sdcard, plugin sdcard, cp ./gpiotest/* /media/$USER/b*/home/linaro
+Plugin sdcard to PC.
+sudo ./mksdcardimg.sh
+sudo mount /dev/sda2 /mnt
+cp ./gpiotest/* /mnt/home/linaro
 sync
 Eject sdcard
 

@@ -5,22 +5,18 @@ Parts required:
 2. Band-Pass SMA Filter.
 3. ADS-B 1090MHz PRO USB Stick.
 
-Input files: ../uboot/out/idbloader.img
-             ../uboot/out/u-boot.img
-             ../uboot/out/trust.img
-             ../linux/out/boot.img
-             ../rootfs-bullseye/linaro-rootfs.img
+Input files: ../rootfs-bullseye/linaro-rootfs.img
+             ../rootfs-bullseye/linaro-esp.img
 
-./mksdcardimg.sh
-
-The result is in sdcard.img
-
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject sdcard, plugin sdcard, cp ./flightaware/* /media/$USER/b*/home/linaro
+Plugin sdcard to PC.
+sudo ./mksdcardimg.sh
+sudo mount /dev/sda2 /mnt
+cp ./flightaware/* /mnt/home/linaro
 sync
-Eject sdcard
+sudo umount /mnt
+Eject sdcard from PC.
 
-Plugin sdcard to SBC
+Plugin sdcard to rockpi4b.
 Login:
 Username: linaro
 Password: linaro

@@ -1,7 +1,16 @@
 Compile mainline kernel:
 
-sudo apt-get install libgnutls28-dev
-git clone https://github.com/torvalds/linux.git --depth=1
+wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.9-rc5.tar.gz
+tar -xzf linux-6.9-rc5.tar.gz
+mv linux-6.9-rc5 linux
+
+Set follows in defconfig to enable NVMe:
+CONFIG_PHY_ROCKCHIP_PCIE=y
+CONFIG_BLK_DEV_NVME=y
+CONFIG_PCIE_ROCKCHIP_HOST=y
+CONFIG_SATA_AHCI=y
+CONFIG_EXT4_FS=y
+CONFIG_PCIEPORTBUS=y
 
 \rm -rf out; mkdir out;
 make kernel

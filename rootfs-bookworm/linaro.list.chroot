@@ -145,3 +145,4 @@ xserver-xorg-video-modesetting
 xterm
 lxde-common
 pkg-kde-tools
+software-properties-common

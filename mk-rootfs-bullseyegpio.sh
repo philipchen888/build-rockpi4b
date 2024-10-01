@@ -19,7 +19,7 @@ if [ ! $VERSION ]; then
 	VERSION="release"
 fi
 
-if [ ! -e live-image-$ARCH.tar.tar.gz ]; then
+if [ ! -e live-image-arm64.tar.tar.gz ]; then
 	echo "\033[36m Run sudo lb build first \033[0m"
 fi
 
@@ -30,7 +30,7 @@ finish() {
 trap finish ERR
 
 echo -e "\033[36m Extract image \033[0m"
-sudo tar -xpf live-image-$ARCH.tar.tar.gz
+sudo tar -xpf live-image-arm64.tar.tar.gz
 
 sudo cp -rf ../kernel/kernel/tmp/lib/modules $TARGET_ROOTFS_DIR/lib
 sudo cp -rf ../kernel/kernel/tmp/lib/firmware $TARGET_ROOTFS_DIR/lib

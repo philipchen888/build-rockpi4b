@@ -1,18 +1,18 @@
 Build fedora sdcard image for rockpi4b:
 
-cd ~/build-rockpi4b/fedora
-wget https://dl.fedoraproject.org/pub/fedora/linux/releases/38/Workstation/aarch64/images/Fedora-Workstation-38-1.6.aarch64.raw.xz
+cd ~/Downloads
+wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/38/Workstation/aarch64/images/Fedora-Workstation-38-1.6.aarch64.raw.xz
 
 Plugin USB2 SATA SSD to PC. 
 sudo ./mksdcardimg.sh
-sudo mkfs.vfat /dev/sda4
-sudo mkfs.ext4 /dev/sda5
-sudo mkfs.ext4 /dev/sda6
+sudo mkfs.vfat /dev/sda1
+sudo mkfs.ext4 /dev/sda2
+sudo mkfs.ext4 /dev/sda3
 sudo fdisk -l /dev/sda
-xzcat Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
+xzcat ~/Downloads/Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
 Eject USB2 SATA SSD from PC.
 
-Plugin the sdcard which has uboot to rockpi4b.
+Plugin the EMMC which has uboot to rockpi4b.
 Plugin USB2 SATA SSD to rockpi4b. Plugin USB wifi dongle to rockpi4b. Power on rockpi4b.
 
 Disable power saving and screen saver.
@@ -31,6 +31,8 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 sudo sudo grubby --set-default /boot/vmlinuz-6.2.9-300.fc38.aarch64
 sudo grubby --default-kernel
 sudo grubby --info DEFAULT
+sudo grubby --info /boot/vmlinuz-6.2.9-300.fc38.aarch64
+sudo ls -l /boot/loader/entries
 sync
 sudo reboot
 
@@ -50,47 +52,39 @@ mpv avemaria.mp4
 Compile and install custom kernel
 ----------------------------------------------------
 
-git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
+wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.9-rc5.tar.gz
+tar -xzf linux-6.9-rc5.tar.gz
+mv linux-6.9-rc5 linux
 cd linux
 sudo make mrproper
 make ARCH=arm64 defconfig
-make ARCH=arm64 all -j4               ( it may take 4 hours to compile kernel )
+make ARCH=arm64 all -j6             ( it may take 4 hours to compile kernel in terminal )
+sudo \rm /boot/dtb
 sudo make ARCH=arm64 modules_install
 sudo make ARCH=arm64 dtbs_install
 sudo make ARCH=arm64 install
-sudo mv /boot/dtbs/6.9.0-geb6a9339efeb /boot/dtb-6.9.0-geb6a9339efeb; sudo \rm -rf /boot/dtbs;
-sync
+
+ls -la /boot
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 sudo grubby --default-kernel
-ll /boot/vmlinuz*
-sudo sudo grubby --set-default /boot/vmlinuz-6.9.0-geb6a9339efeb
+sudo grubby --set-default /boot/vmlinuz-6.9.0-rc5
 sudo grubby --default-kernel
+sudo vi /boot/loader/entries/3d88012365704020aeba303ade696fb8-6.9.0-rc5.conf ( after options, add
+devicetree /boot/dtbs/6.9.0-rc5/rockchip/rk3399-rock-pi-4b.dtb
+)
+sudo vi /boot/grub2/grub.cfg
+sudo ls -l /boot/loader/entries/
 sync
+
+ftp ~/build-rockpi4b/fedora/patches/* /lib/firmware/brcm
+
 sudo reboot    ( If USB wifi dongle is not working, plugin ethernet cable to rockpi4b )
 
 uname -a
+cat /etc/fedora-release
 speedtest-cli
-glmark2-es2
+glmark2-es2-wayland
 mpv avemaria.mp4
-
--------------------------------------------------------
-Uninstall custom kernel
--------------------------------------------------------
-
-uname -a
-sudo dnf list installed kernel --disableexcludes=all
-# sudo dnf remove kernel-core-6.8.9-300.fc40.aarch64 kernel-core-6.8.9-100.fc38.aarch64
-sudo grubby --default-kernel
-sudo grubby --info DEFAULT
-ll /boot/vmlinuz*
-sudo grubby --set-default /boot/vmlinuz-6.2.9-300.fc38.aarch64
-sudo \rm -rf /boot/vmlinuz-6.9.0-geb6a9339efeb /boot/System.map-6.9.0-geb6a9339efeb /boot/initramfs-6.9.0-geb6a9339efeb.img /boot/dtb-6.9.0-geb6a9339efeb /boot/vmlinuz /boot/System.map
-sudo \rm /boot/dtb; sudo ln -s /boot/dtb-6.2.9-300.fc38.aarch64 /boot/dtb;
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-sudo grubby --default-kernel
-sudo grubby --info DEFAULT
-sync
-sudo reboot   ( Relabeling may take 10 minutes )
 
 -------------------------------------------------------
 Upgrade to fedora40
@@ -109,6 +103,14 @@ sync
 sudo reboot
 
 uname -a
+cat /etc/fedora-release
 speedtest-cli
 glmark2-es2-wayland
+
+sudo dnf install pandoc
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4

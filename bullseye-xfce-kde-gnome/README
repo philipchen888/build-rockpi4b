@@ -1,20 +1,13 @@
 Build bullseye-xfce-kde-gnome sdcard for Radxa rockpi4b:
 
-Input files: ../uboot/out/idbloader.img
-             ../uboot/out/uboot.img
-             ../uboot/out/trust.img
-             ../linux/out/boot.img
-             ../rootfs-bullseye/linaro-basicrootfs.img
+Input files: ../rootfs-bullseye/linaro-basicrootfs.img
+             ../rootfs-bullseye/linaro-esp.img
 
-./mksdcardimg.sh
+Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to PC.
+sudo ./mksdcardimg.sh
+Eject NVME-SSD/sdcard/USB2-SATA-SSD/EMMC from PC.
 
-The result is in sdcard.img
-
-Plugin NVME SSD to PC.
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject NVME SSD from PC.
-
-Plugin sdcard and NVME SSD to SBC
+Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to rockpi4b.
 mouse right click on the screen, select terminal emulator.
 Login:
 Username: linaro
@@ -42,7 +35,7 @@ Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
 
-sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
+sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv git pandoc
 
 speedtest-cli
 
@@ -55,8 +48,14 @@ glmark2-es2
 
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
-pip3 install --no-deps -U yt-dlp
-~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+aplay -l
+pavucontrol  ( select card 1 as default )
+
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
 
 sudo rfkill list

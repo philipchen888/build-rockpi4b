@@ -1,20 +1,13 @@
 Build bookworm-xfce-kde-gnome sdcard for Radxa rockpi4b:
 
-Input files: ../uboot/out/idbloader.img
-             ../uboot/out/uboot.img
-             ../uboot/out/trust.img
-             ../linux/out/boot.img
+Input files: ../rootfs-bookworm/linaro-esp.img
              ../rootfs-bookworm/linaro-basicrootfs.img:
 
-./mksdcardimg.sh
+Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to PC.
+sudo ./mksdcardimg.sh
+Eject NVME-SSD/sdcard/USB2-SATA-SSD/EMMC from PC.
 
-The result is in sdcard.img
-
-Plugin NVME SSD to PC.
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject NVME SSD from PC.
-
-Plugin sdcard and NVME SSD to SBC
+Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to rockpi4b.
 mouse right click on the screen, select terminal emulator.
 Login:
 Username: linaro
@@ -41,11 +34,12 @@ power off, power on
 Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
+Check if Debian is running UEFI mode:
+ls /sys/firmware/efi
 
 sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv glmark2 pandoc
 
 speedtest-cli
-
 glmark2
 
 Chromium -> youtube.com -> search YmDNhi07_Ho

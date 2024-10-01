@@ -1,17 +1,41 @@
 Compile uboot:
 
+git clone https://github.com/radxa/rkbin.git -b master --tags develop-v20240301
+mv develop-v20240301 rkbin
 git clone https://github.com/u-boot/u-boot.git -b u-boot-2023.07.y
-mkdir out
+
 make u-boot
 
-The result is in ./out/u-boot.img
-                       trust.img
-                       idbloader.img
+The results are in ./out/u-boot.img
+                         trust.img
+                         idbloader.img
+                         uboot-trust-spi.img
 
 make clean
 
-./mksdcardimg.sh
+Plugin EMMC to PC.
+sudo ./mksdcardimg.sh
+Eject EMMC from PC.
 
-Plugin sdcard to PC.
-sudo dd if=./sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
-Eject sdcard from PC.
+Plugin EMMC to rockpi4b.
+
+------------------------------------------------------
+
+Program spi nor flash with u-boot:
+
+wget https://dl.radxa.com/rockpi4/images/debian/rockpi4b_debian_buster_xfce4_arm64_20210608_1321-gpt.img.gz
+gunzip rockpi4b_debian_buster_xfce4_arm64_20210608_1321-gpt.img.gz
+
+Unplug EMMC/USB-SATA-SSD/NVMe-SSD from rockpi4b
+Burn rockpi4b_debian_buster_xfce4_arm64_20210608_1321-gpt.img to sdcard.
+Boot rockpi4b with sdcard.
+
+Erase spi nor flash:
+sudo dd if=/dev/zero of=/dev/mtdblock0 bs=1M seek=0 count=4
+sync
+
+Install uboot to spi nor flash:
+sudo dd if=./uboot-trust-spi.img of=/dev/mtdblock0 bs=1M seek=0
+sync
+
+--------------------------------------------------------
