@@ -9,7 +9,7 @@ wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/curren
 wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
 
 cd ~/build-rockpi4b/bookworm-uefi
-Plugin USB2-SATA-SSD/NVMe-SSD to PC. 
+Plugin USB2-SATA-SSD to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
@@ -31,10 +31,9 @@ delete options
 cd
 sync
 sudo umount /mnt
-Eject USB2-SATA-SSD/NVMe-SSD from PC.
+Eject USB2-SATA-SSD from PC.
 
-Plugin the EMMC which has uboot to rockpi4b.
-Plugin USB2-SATA-SSD/NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin USB2-SATA-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
 
 Set User name: linaro
 Partition ( Enter, Enter, Enter, Yes )
@@ -44,9 +43,10 @@ Update NVMRAM to boot Debian ( Yes )
 Stuck at Unable to install GRUB in dummy.
 Continue without bootloader. Power off rockpi4b when installation completed.
 
-Plugin USB2-SATA-SSD/NVMe-SSD to PC.
+Plugin USB2-SATA-SSD to PC.
 sudo parted /dev/sda ( print, rm 2, print, quit )
 sudo blkid /dev/sda3 ( write down UUID for usage in /mnt/boot/grub/grub.cfg )
+sudo e2label /dev/sda3 rootfs
 sudo mount /dev/sda3 /mnt
 cd /mnt
 sudo vi boot/grub/grub.cfg ( add
@@ -54,13 +54,12 @@ set timeout=5
 set default=0
 set menu_color_normal=white/black
 set menu_color_highlight=white/green
-#set root=(nvme0n1,nvme0n1p3)
 set root=(usb0,gpt3)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root 15e85c6c-7b90-45a9-9e7a-208088c19dae
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' 15e85c6c-7b90-45a9-9e7a-208088c19dae
     echo    'Loading Linux 6.1.0-25-arm64 ...'
-    linux /boot/vmlinuz-6.1.0-25-arm64 root=UUID=15e85c6c-7b90-45a9-9e7a-208088c19dae rootwait rw
+    linux /boot/vmlinuz-6.1.0-25-arm64 root=root=LABEL=rootfs rootwait rw
     echo    'Loading initial ramdisk ...'
     initrd /boot/initrd.img-6.1.0-25-arm64
 }
@@ -71,13 +70,13 @@ sudo umount /mnt
 sudo mount /dev/sda1 /mnt
 cd /mnt/EFI
 sudo \rm -rf fedora
-sudo vi debian/grub.cfg ( append first line usb0,gpt3 or nvme0n1,nvme0n1p3 )
+sudo vi debian/grub.cfg ( change first line to search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' UUID )
 cd
 sync
 sudo umount /mnt
-Eject USB2-SATA-SSD/NVMe-SSD from PC.
+Eject USB2-SATA-SSD from PC.
 
-Plugin USB2-SATA-SSD/NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin USB2-SATA-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
 Disable power saving and screen saver.
 su -
 usermod -aG sudo linaro
