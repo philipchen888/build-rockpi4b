@@ -40,12 +40,17 @@ Power off, power on
 ps aux | grep -i apt ( wait till all apt done except grep -i apt )
 glxinfo | grep OpenGL
 date
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
 
 sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools ffmpeg mpv glmark2 pandoc
 
 speedtest-cli
 
 glmark2
+
+aplay -l
+pavucontrol  ( select card 1 as default )
 
 firefox -> youtube.com -> search YmDNhi07_Ho
 

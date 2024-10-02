@@ -22,6 +22,7 @@ sudo ./mksdcardimg.sh
 sudo mount /dev/sda2 /mnt
 cp ./pn532nfc/* /mnt/home/linaro
 sync
+sudo umount /mnt
 Eject sdcard
 
 Plugin sdcard to SBC

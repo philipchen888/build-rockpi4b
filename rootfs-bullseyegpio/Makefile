@@ -33,14 +33,11 @@ prebuild:
 	--debootstrap-options "--variant=minbase --include=apt-transport-https,gnupg" \
 	--distribution bullseye \
 	--gzip-options '-9 --rsyncable' \
-	--iso-publisher 'Linaro; http://www.linaro.org/; linaro-dev@lists.linaro.org' \
-	--iso-volume 'Linaro Bullseye $(date +%Y%m%d-%H:%M)' \
 	--linux-flavours none \
 	--linux-packages none \
 	--mode debian \
 	--security true \
-	--system normal \
-	--updates true
+	--system normal
 
 buildrootfs:
 	\cp -rf $(PWD)/../customization/* config/

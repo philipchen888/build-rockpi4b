@@ -62,7 +62,7 @@ resolvconf -u
 apt-get update
 \rm -rf /etc/initramfs/post-update.d/z50-raspi-firmware
 apt-get upgrade -y
-apt-get install -y build-essential git wget firmware-linux grub-efi-arm64 e2fsprogs zstd
+apt-get install -y build-essential git wget linux-firmware grub-efi-arm64 e2fsprogs zstd
 
 # Install and configure GRUB
 cp /boot/fstab /etc/fstab
