@@ -3,15 +3,15 @@ Build ubuntu-jammy sdcard for Radxa rockpi4b:
 Input files: ../rootfs-ubuntu-jammy/linaro-esp.img
              ../rootfs-ubuntu-jammy/linaro-rootfs.img
 
-Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to PC.
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
 sudo ./mksdcardimg.sh
 sudo mount /dev/sda2 /mnt
 sudo vi /mnt/etc/gdm3/custom.conf ( uncomment WaylandEnable=false )
 sync
 sudo umount /mnt
-Eject NVME-SSD/sdcard/USB2-SATA-SSD/EMMC from PC.
+Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to SBC
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to SBC
 Login:
 Username: linaro
 Password: linaro

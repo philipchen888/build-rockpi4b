@@ -12,7 +12,6 @@ sudo fdisk -l /dev/sda
 xzcat ~/Downloads/Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
 Eject USB2 SATA SSD from PC.
 
-Plugin the EMMC which has uboot to rockpi4b.
 Plugin USB2 SATA SSD to rockpi4b. Plugin USB wifi dongle to rockpi4b. Power on rockpi4b.
 
 Disable power saving and screen saver.

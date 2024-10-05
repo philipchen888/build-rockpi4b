@@ -3,11 +3,11 @@ Build bullseye-lxde sdcard for Radxa rockpi4b:
 Input files: ../rootfs-bullseye/linaro-rootfs.img
              ../rootfs-bullseye/linaro-esp.img
 
-Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to PC.
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
 sudo ./mksdcardimg.sh
-Eject NVME-SSD/sdcard/USB2-SATA-SSD/EMMC from PC.
+Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-Plugin NVME-SSD/sdcard/USB2-SATA-SSD/EMMC to rockpi4b.
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to rockpi4b.
 Login:
 Username: linaro
 Password: linaro

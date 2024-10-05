@@ -1,148 +1,66 @@
-This is to build rockpi4b sdcard image for Radxa rockpi4b:
+Build bullseye-xfce-kde-gnome sdcard for Radxa rockpi4b:
 
-Parts needed:
-1. Radxa rockpi4b.
-2. WD Black SN770 1TB NVMe SSD.  ( install kernel and rootfs in NVMe SSD )
-3. Sandisk 64GB micro sdcard.    ( install u-boot in sdcard )
-4. Host PC with ubuntu 22.
-5. M.2 NVMe SSD enclosure.
-6. EMMC module.
-7. USB2 SATA SSD
+Input files: ../rootfs-bullseye/linaro-esp.img
+             ../rootfs-bullseye/linaro-basicrootfs.img:
 
-Steps to build rockpi4b sdcard image:
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+sudo ./mksdcardimg.sh
+Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-1. git clone https://github.com/philipchen888/build-rockpi4b.git
-   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libdbus-glib-1-dev libbluetooth-dev python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler swig libmpc-dev debootstrap debhelper kpartx gdisk devscripts isolinux po4a libgnutls28-dev mtools python-is-python3 python3-pyelftools u-boot-tools
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to rockpi4b.
+mouse right click on the screen, select terminal emulator.
+Login:
+Username: linaro
+Password: linaro
+uname -a
+lsb_release -a
+sudo ifconfig
+sudo nmcli dev wifi connect "SSID" password "PASSWORD"
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+date
+sudo apt update
+sudo apt upgrade
+sync
+sudo rm /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+sudo apt install tasksel
+sudo tasksel --list-tasks
+For xfce4: sudo tasksel install xfce-desktop  ( then sudo apt remove --purge openbox )
+For kde:   sudo tasksel install kde-desktop   ( then sudo apt remove --purge openbox )
+For gnome: sudo tasksel install gnome-desktop ( then sudo apt remove --purge openbox )
+sync
+sudo shutdown -h now
+power off, power on
+Disable power saving and screen saver.
+glxinfo | grep OpenGL
+date
+Check if Debian is running UEFI mode:
+ls /sys/firmware/efi
 
-2. Install cross compiler and live-build:
-   Go to https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
-   wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
-   sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz  -C /usr/local/
-   wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
-   sudo tar -xJf arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz -C /usr/local/
+sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv git pandoc
 
-   wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20230502/live-build_20230502.tar.xz
-   tar xvf live-build_20230502.tar.xz
-   cd live-build
-   sudo make install
-   vi Makefile ( search LANGUAGE in $(LANGUAGES), delete for .. to done )
-   sudo make install
-   lb --version ( 20230502 )
+speedtest-cli
 
-3. cd ~/build-rockpi4b/uboot  ( Compile u-boot )
-   git clone https://github.com/radxa/rkbin.git -b master --tags develop-v20240301
-   mv develop-v20240301 rkbin
-   git clone https://github.com/u-boot/u-boot.git -b u-boot-2023.07.y
-   \rm -rf out; mkdir out;
-   make u-boot
+git clone https://github.com/glmark2/glmark2.git -b 2021.02
+cd glmark2
+./waf configure --with-flavors=x11-glesv2
+./waf 
+sudo ./waf install
+glmark2-es2
 
-   The results are in ./out/u-boot.img
-                            trust.img
-                            idbloader.img
-                            uboot-trust-spi.img
-   make clean
-   Plugin EMMC to PC.
-   sudo ./mksdcardimg.sh
-   Eject EMMC from PC.
+aplay -l
+pavucontrol  ( select card 1 hdmi as default )
 
-4. cd ~/build-rockpi4b/kernel  ( Compile vendor's kernel )
-   git clone https://github.com/radxa/kernel --depth=1 -b 4.4.194-10-rockchip
-   vi kernel/scripts/dtc/dtc-lexer.l dtc-lexer.lex.c_shipped ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
-   vi ./kernel/arch/arm64/boot/dts/rockchip/rk3399.dtsi ( change max-link-speed = <1>; to max-link-speed = <2>; )
-   cd kernel; mkdir tmp; cd tmp; mkdir lib;
-   cd ../../; mkdir out;
-   vi kernel/scripts/dtc/dtc-lexer.lex.c ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
-   make kernel
+Chromium -> youtube.com -> search YmDNhi07_Ho
 
-   The result is in ./out/boot.img
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
 
-5. cd ~/build-rockpi4b/linux  ( Compile mainline kernel )
-   wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.9-rc5.tar.gz
-   tar -xzf linux-6.9-rc5.tar.gz
-   mv linux-6.9-rc5 linux
-   vi ./linux/arch/arm64/configs/defconfig ( change m to y for CONFIG_SATA_AHCI=y CONFIG_BLK_DEV_NVME=y CONFIG_EXT4_FS=y CONFIG_PCIE_ROCKCHIP_HOST=y CONFIG_PHY_ROCKCHIP_PCIE=y CONFIG_PCIEPORTBUS=y )
-
-   \rm -rf out; mkdir out;
-   make kernel
-
-   The result is in ./out/boot.img
-
-6. cd ~/build-rockpi4b/rootfs-bullseye  ( Compile debian bullseye rootfs )
-   make rootfs        ( has desktop )
-   The result is in ./linaro-rootfs.img
-
-   make basicrootfs   ( no desktop )
-   The result is in ./linaro-basicrootfs.img
-   make clean
-
-7. cd ~/build-rockpi4b/rootfs-bookworm  ( Compile debian bookworm rootfs )
-   make rootfs        ( has desktop )
-   The result is in ./linaro-rootfs.img
-
-   make basicrootfs   ( no desktop )
-   The result is in ./linaro-basicrootfs.img
-   make clean
-
-8. cd ~/build-rockpi4b/rootfs-ubuntu-focal  ( Compile debian ubuntu-focal rootfs )
-   make rootfs
-   The result is in ./linaro-rootfs.img
-   make clean
-
-9. cd ~/build-rockpi4b/rootfs-ubuntu-jammy  ( Compile debian ubuntu-jammy rootfs )
-   make rootfs
-   The result is in ./linaro-rootfs.img
-   make clean
-
-10. cd ~/build-rockpi4b/bullseye-lxde  ( Build debian bullseye lxde-desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
-
-11. cd ~/build-rockpi4b/bullseye-xfce-kde-gnome ( Build bullseye xfce-kde-gnome desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
-
-12. cd ~/build-rockpi4b/bookworm-lxde  ( Build debian bookworm lxde-desktop image )
-    Plugin NVME-SSD/sdcard/USB2-SATA-SSD to PC.
-    sudo ./mksdcardimg.sh
-    Eject NVME-SSD/sdcard/USB2-SATA-SSD from PC. 
-
-13. cd ~/build-rockpi4b/bookworm-xfce-kde-gnome ( Build bookworm xfce-kde-gnome desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
-
-14. cd ~/build-rockpi4b/ubuntu-focal  ( Build ubuntu-focal image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
-
-15. cd ~/build-rockpi4b/ubuntu-jammy  ( Build ubuntu-jammy image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
-
-16. cd ~/build-rockpi4b/yocto  ( Build yocto image )
-
-17. cd ~/build-rockpi4b/yocto-lxde  ( Build yocto lxde-desktop image )
-
-18. cd ~/build-rockpi4b/yocto-xfce  ( Build yocto xfce-desktop image )
-
-19. cd ~/build-rockpi4b/buildroot   ( Build buildroot image )
-
-20. cd ~/build-rockpi4b/android     ( Build android image )
-
-21. cd ~/build-rockpi4b/rootfs-bullseyegpio  ( Compile debian bullseye rootfs )
-    make rootfs
-    The result is in ./linaro-rootfs.img
-    make clean
-
-22. cd ~/build-rockpi4b/bullseye-gpio  ( gpio test in bullseye-lxde )
-
-23. cd ~/build-rockpi4b/bullseye-pn532nfc  ( pn532nfc test in bullseye-lxde )
-
-24. cd ~/build-rockpi4b/bullseye-flightaware  ( flightaware in bullseye-lxde ) 
-
-25. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
-
-26. cd ~/build-rockpi4b/fedora          ( Build fedora image )
-
-27. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
-
-28. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a

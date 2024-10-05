@@ -13,12 +13,6 @@ The results are in ./out/u-boot.img
 
 make clean
 
-Plugin EMMC to PC.
-sudo ./mksdcardimg.sh
-Eject EMMC from PC.
-
-Plugin EMMC to rockpi4b.
-
 ------------------------------------------------------
 
 Program spi nor flash with u-boot:

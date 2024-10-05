@@ -41,9 +41,6 @@ Steps to build rockpi4b sdcard image:
                             idbloader.img
                             uboot-trust-spi.img
    make clean
-   Plugin EMMC to PC.
-   sudo ./mksdcardimg.sh
-   Eject EMMC from PC.
 
 4. cd ~/build-rockpi4b/kernel  ( Compile vendor's kernel )
    git clone https://github.com/radxa/kernel --depth=1 -b 4.4.194-10-rockchip
@@ -69,54 +66,59 @@ Steps to build rockpi4b sdcard image:
 
 6. cd ~/build-rockpi4b/rootfs-bullseye  ( Compile debian bullseye rootfs )
    make rootfs        ( has desktop )
-   The result is in ./linaro-rootfs.img
+   The results are in ./linaro-rootfs.img linaro-esp.img
 
    make basicrootfs   ( no desktop )
-   The result is in ./linaro-basicrootfs.img
+   The results are in ./linaro-basicrootfs.img linaro-esp.img
    make clean
 
 7. cd ~/build-rockpi4b/rootfs-bookworm  ( Compile debian bookworm rootfs )
    make rootfs        ( has desktop )
-   The result is in ./linaro-rootfs.img
+   The results are in ./linaro-rootfs.img linaro-esp.img
 
    make basicrootfs   ( no desktop )
-   The result is in ./linaro-basicrootfs.img
+   The results are in ./linaro-basicrootfs.img linaro-esp.img
    make clean
 
 8. cd ~/build-rockpi4b/rootfs-ubuntu-focal  ( Compile debian ubuntu-focal rootfs )
    make rootfs
-   The result is in ./linaro-rootfs.img
+   The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
 9. cd ~/build-rockpi4b/rootfs-ubuntu-jammy  ( Compile debian ubuntu-jammy rootfs )
    make rootfs
-   The result is in ./linaro-rootfs.img
+   The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
 10. cd ~/build-rockpi4b/bullseye-lxde  ( Build debian bullseye lxde-desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+    sudo ./mksdcardimg.sh
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 11. cd ~/build-rockpi4b/bullseye-xfce-kde-gnome ( Build bullseye xfce-kde-gnome desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+    sudo ./mksdcardimg.sh
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 12. cd ~/build-rockpi4b/bookworm-lxde  ( Build debian bookworm lxde-desktop image )
-    Plugin NVME-SSD/sdcard/USB2-SATA-SSD to PC.
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
-    Eject NVME-SSD/sdcard/USB2-SATA-SSD from PC. 
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC. 
 
 13. cd ~/build-rockpi4b/bookworm-xfce-kde-gnome ( Build bookworm xfce-kde-gnome desktop image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+    sudo ./mksdcardimg.sh
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 14. cd ~/build-rockpi4b/ubuntu-focal  ( Build ubuntu-focal image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+    sudo ./mksdcardimg.sh
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 15. cd ~/build-rockpi4b/ubuntu-jammy  ( Build ubuntu-jammy image )
-    ./mksdcardimg.sh
-    The result is in sdcard.img
+    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+    sudo ./mksdcardimg.sh
+    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 16. cd ~/build-rockpi4b/yocto  ( Build yocto image )
 
@@ -130,7 +132,7 @@ Steps to build rockpi4b sdcard image:
 
 21. cd ~/build-rockpi4b/rootfs-bullseyegpio  ( Compile debian bullseye rootfs )
     make rootfs
-    The result is in ./linaro-rootfs.img
+    The results are in ./linaro-rootfs.img linaro-esp.img
     make clean
 
 22. cd ~/build-rockpi4b/bullseye-gpio  ( gpio test in bullseye-lxde )
