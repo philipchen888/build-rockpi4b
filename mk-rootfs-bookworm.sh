@@ -57,7 +57,8 @@ sudo mount -o bind /dev/pts $TARGET_ROOTFS_DIR/dev/pts
 
 cat << EOF | sudo chroot $TARGET_ROOTFS_DIR
 
-ln -sf /run/resolvconf/resolv.conf /etc/resolv.conf
+rm -rf /etc/resolv.conf
+echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
 resolvconf -u
 apt-get update
 \rm -rf /etc/initramfs/post-update.d/z50-raspi-firmware
@@ -100,7 +101,7 @@ update-initramfs -c -k 6.9.0-rc5
 
 #---------------Clean--------------
 rm -rf /var/lib/apt/lists/*
-
+sync
 EOF
 
 sudo umount $TARGET_ROOTFS_DIR/proc
