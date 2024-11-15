@@ -15,39 +15,60 @@ Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to SBC
 Login:
 Username: linaro
 Password: linaro
+Setup wifi. Disable power saving and screen saver.
 uname -a
 lsb_release -a
 sudo ifconfig
-sudo vi /etc/apt/sources.list ( replace with http://mirrors.ocf.berkeley.edu/ubuntu-ports )
 sudo dpkg-reconfigure tzdata
 sudo dpkg-reconfigure locales
-sync
-sudo reboot
-
-ps aux | grep -i apt ( wait till all apt done except grep -i apt )
 sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
 sync
+df .
+lsblk
+sudo resize2fs /dev/mmcblk1p2   ( sda2, mmcblk0p2, nvme0n1p2 )
+df .
+sudo vi /etc/systemd/logind.conf ( change to follows:
+HandlePowerKey=ignore
+HandleSuspendKey=ignore
+HandleHibernateKey=ignore
+HandleLidSwitch=ignore
+)
+sync
 sudo shutdown -h now
 Power off, power on
-Disable power saving and screen saver.
-ps aux | grep -i apt ( wait till all apt done except grep -i apt )
 glxinfo | grep OpenGL
 date
 Check if Ubuntu is running UEFI mode:
 ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
 
-sudo apt install python3-pip python3-setuptools mpv speedtest-cli glmark2-es2 ffmpeg pandoc
+sudo apt install python3-pip python3-setuptools mpv speedtest-cli glmark2-es2 glmark2-es2-wayland ffmpeg pandoc
 
 speedtest-cli --secure
-glmark2-es2
+
+glmark2-es2-wayland    ( for wayland )
+glmark2-es2            ( for x11 )
 
 aplay -l
 pavucontrol  ( select card 1 as default )
 
 Firefox -> youtube.com -> search YmDNhi07_Ho
 
+Install python3.9:
+wget https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tgz
+tar -xf Python-3.9.1.tgz
+cd Python-3.9.1
+./configure --enable-optimizations
+make -j4
+sudo make install
+python --version
+
+cd ~/
 git clone https://github.com/yt-dlp/yt-dlp.git
 cd yt-dlp
 make
@@ -56,7 +77,6 @@ cd ../
 mpv avemaria.mp4
 
 sudo rfkill list
-sudo rfkill unblock bluetooth
 hciconfig hci0
 hcitool dev
 hciconfig -a

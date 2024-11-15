@@ -4,7 +4,6 @@ export ARCH=arm64
 export CROSS_COMPILE=/usr/local/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
 
 rootfs: clean prebuild buildrootfs postbuild mkimage mkespimage
-basicrootfs: clean prebuild buildbasicrootfs postbuild mkbasicimage mkespimage
 
 clean:
 	sudo lb clean --purge
@@ -45,19 +44,11 @@ buildrootfs:
 	cp linaro.list.chroot config/package-lists/linaro.list.chroot
 	sudo lb build
 
-buildbasicrootfs:
-	\cp -rf $(PWD)/../customization/* config/
-	cp linaro.list.chroot.basic config/package-lists/linaro.list.chroot
-	sudo lb build
-
 postbuild:
 	ARCH=arm64 $(PWD)/../mk-rootfs-bullseye.sh
 
 mkimage:
 	$(PWD)/../mk-image.sh
-
-mkbasicimage:
-	$(PWD)/../mk-basicimage.sh
 
 mkespimage:
 	$(PWD)/../mk-espimage.sh

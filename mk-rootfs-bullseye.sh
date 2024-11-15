@@ -24,7 +24,10 @@ if [ ! -e live-image-arm64.tar.tar.gz ]; then
 fi
 
 finish() {
-	sudo umount $TARGET_ROOTFS_DIR/dev
+	sudo umount -lf $TARGET_ROOTFS_DIR/proc || true
+	sudo umount -lf $TARGET_ROOTFS_DIR/sys || true
+	sudo umount -lf $TARGET_ROOTFS_DIR/dev/pts || true
+	sudo umount -lf $TARGET_ROOTFS_DIR/dev || true
 	exit -1
 }
 trap finish ERR
@@ -40,9 +43,6 @@ sudo cp -rf ../packages/$ARCH/* $TARGET_ROOTFS_DIR/packages
 sudo cp -rf ../linux/linux/tmp/boot/* $TARGET_ROOTFS_DIR/boot
 sudo cp ../linux/patches/40_custom_uuid $TARGET_ROOTFS_DIR/boot
 sudo cp ../linux/patches/debian/fstab $TARGET_ROOTFS_DIR/boot
-
-# overlay folder
-sudo cp -rf ../overlay/* $TARGET_ROOTFS_DIR/
 
 echo -e "\033[36m Change root.....................\033[0m"
 if [ "$ARCH" == "armhf" ]; then
@@ -95,7 +95,6 @@ cp /packages/rkwifibt/brcmfmac43456-sdio.radxa,rockpi4b.txt /lib/firmware/brcm/
 cp /packages/rkwifibt/BCM4345C5.hcd /lib/firmware/brcm/
 apt-get install -f -y
 
-systemctl enable resize-helper
 update-initramfs -c -k 6.9.0-rc5
 
 #---------------Clean--------------
@@ -103,7 +102,8 @@ rm -rf /var/lib/apt/lists/*
 sync
 EOF
 
-sudo umount $TARGET_ROOTFS_DIR/proc
-sudo umount $TARGET_ROOTFS_DIR/sys
-sudo umount $TARGET_ROOTFS_DIR/dev/pts
-sudo umount $TARGET_ROOTFS_DIR/dev
+sudo umount -lf $TARGET_ROOTFS_DIR/proc || true
+sudo umount -lf $TARGET_ROOTFS_DIR/sys || true
+sudo umount -lf $TARGET_ROOTFS_DIR/dev/pts || true
+sudo umount -lf $TARGET_ROOTFS_DIR/dev || true
+sync

@@ -5,49 +5,51 @@ Input files: ../rootfs-ubuntu-jammy/linaro-esp.img
 
 Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
 sudo ./mksdcardimg.sh
-sudo mount /dev/sda2 /mnt
-sudo vi /mnt/etc/gdm3/custom.conf ( uncomment WaylandEnable=false )
-sync
-sudo umount /mnt
 Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
 Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to SBC
 Login:
 Username: linaro
 Password: linaro
+Setup wifi. Disable power saving and screen saver.
 uname -a
 lsb_release -a
 sudo ifconfig
-sudo vi /etc/apt/sources.list ( replace with http://mirrors.ocf.berkeley.edu/ubuntu-ports )
 sudo dpkg-reconfigure tzdata
 sudo dpkg-reconfigure locales
-sync
-sudo reboot
-
-ps aux | grep -i apt ( wait till all apt done except grep -i apt )
+date
 sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
+sync
+df .
+lsblk
+sudo resize2fs /dev/mmcblk1p2   ( sda2, mmcblk0p2, nvme0n1p2 )
+df .
 sudo vi /etc/systemd/logind.conf ( change to follows:
 HandlePowerKey=ignore
 HandleSuspendKey=ignore
 HandleHibernateKey=ignore
 HandleLidSwitch=ignore
-
+)
 sync
 sudo shutdown -h now
 Power off, power on
-ps aux | grep -i apt ( wait till all apt done except grep -i apt )
 glxinfo | grep OpenGL
 date
 Check if Ubuntu is running UEFI mode:
 ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
 
-sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools ffmpeg mpv glmark2 pandoc
+sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2 glmark2-es2-wayland pandoc
 
-speedtest-cli
+speedtest-cli --secure
 
-glmark2
+glmark2-es2-wayland   ( for wayland )
+glmark2-es2           ( for x11 )
 
 aplay -l
 pavucontrol  ( select card 1 as default )
@@ -62,7 +64,6 @@ cd ../
 mpv avemaria.mp4
 
 sudo rfkill list
-sudo rfkill unblock bluetooth
 hciconfig hci0
 hcitool dev
 hciconfig -a
