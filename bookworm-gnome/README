@@ -1,4 +1,4 @@
-Build bookworm-lxde sdcard for Radxa rockpi4b:
+Build bookworm-gnome sdcard for Radxa rockpi4b:
 
 Input files: ../rootfs-bookworm/linaro-esp.img
              ../rootfs-bookworm/linaro-rootfs.img
@@ -11,6 +11,7 @@ Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to rockpi4b.
 Login:
 Username: linaro
 Password: linaro
+Setup wifi. Disable power saving and screen saver.
 uname -a
 lsb_release -a
 sudo ifconfig
@@ -20,19 +21,27 @@ date
 sudo apt update
 sudo apt upgrade
 sync
+df .
+lsblk
+sudo resize2fs /dev/mmcblk1p2  ( sda2, mmcblk0p2, nvme0n1p2 )
+df .
 sudo shutdown -h now
 Power off, power on
-Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
 Check if Debian is running UEFI mode:
 ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
 
-sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv glmark2-es2-x11 pandoc
+sudo apt install speedtest-cli python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv glmark2-es2-x11 glmark2-es2-wayland pandoc
 
 speedtest-cli --secure
 
-glmark2-es2
+glmark2-es2-wayland   ( for wayland )
+glmark2-es2           ( for x11 )
 
 aplay -l
 pavucontrol  ( select card 1 as default )
