@@ -1,0 +1,69 @@
+Build ubuntu-oracular sdcard for Radxa rockpi4b:
+
+Input files: ../rootfs-ubuntu-oracular/linaro-esp.img
+             ../rootfs-ubuntu-oracular/linaro-rootfs.img
+
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+sudo ./mksdcardimg.sh
+Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
+
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to SBC
+Login:
+Username: linaro
+Password: linaro
+Setup wifi. Disable power saving and screen saver.
+uname -a
+lsb_release -a
+sudo ifconfig
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+date
+sudo apt update
+sudo apt upgrade
+sudo apt dist-upgrade
+sync
+df .
+lsblk
+sudo resize2fs /dev/mmcblk1p2   ( sda2, mmcblk0p2, nvme0n1p2 )
+df .
+sudo vi /etc/systemd/logind.conf ( change to follows:
+HandlePowerKey=ignore
+HandleRebootKey=ignore
+HandleSuspendKey=ignore
+HandleHibernateKey=ignore
+HandleLidSwitch=ignore
+)
+sync
+sudo shutdown -h now
+Power off, power on
+glxinfo | grep OpenGL
+date
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
+
+sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2-wayland pandoc
+
+speedtest-cli --secure
+
+glmark2-es2-wayland
+
+aplay -l
+pavucontrol  ( select card 1 as default )
+
+firefox -> youtube.com -> search YmDNhi07_Ho
+
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+mpv avemaria.mp4
+
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a
