@@ -44,6 +44,9 @@ sudo cp -rf ../linux/linux/tmp/boot/* $TARGET_ROOTFS_DIR/boot
 sudo cp ../linux/patches/40_custom_uuid $TARGET_ROOTFS_DIR/boot
 sudo cp ../linux/patches/debian/fstab $TARGET_ROOTFS_DIR/boot
 
+# overlay folder
+sudo cp -rf ../overlay/* $TARGET_ROOTFS_DIR/
+
 echo -e "\033[36m Change root.....................\033[0m"
 if [ "$ARCH" == "armhf" ]; then
 	sudo cp /usr/bin/qemu-arm-static $TARGET_ROOTFS_DIR/usr/bin/
@@ -95,6 +98,8 @@ cp /packages/rkwifibt/brcmfmac43456-sdio.radxa,rockpi4b.txt /lib/firmware/brcm/
 cp /packages/rkwifibt/BCM4345C5.hcd /lib/firmware/brcm/
 apt-get install -f -y
 
+systemctl enable rc-local
+systemctl enable resize-helper
 update-initramfs -c -k 6.9.0-rc5
 
 #---------------Clean--------------

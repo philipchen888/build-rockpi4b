@@ -21,11 +21,6 @@ date
 sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
-sync
-df .
-lsblk
-sudo resize2fs /dev/mmcblk1p2   ( sda2, mmcblk0p2, nvme0n1p2 )
-df .
 sudo vi /etc/systemd/logind.conf ( change to follows:
 HandlePowerKey=ignore
 HandleSuspendKey=ignore
