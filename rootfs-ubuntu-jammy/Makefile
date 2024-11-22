@@ -11,7 +11,7 @@ clean:
 
 cleanall:
 	sudo lb clean --purge
-	\rm -rf config .build rootfs
+	\rm -rf config .build rootfs local
 	\rm -rf linaro-rootfs.img
 
 prebuild:

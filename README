@@ -9,10 +9,10 @@ Parts needed:
 6. EMMC module.
 7. USB2 SATA SSD
 
-Note: Compile debian, ubuntu-focal and ubuntu-jammy using host PC with ubuntu 22 (amd64 jammy).
+Note: Compile debian and ubuntu-jammy using host PC with ubuntu 22 (amd64 jammy).
       Compile ubuntu-noble and ubuntu-oracular using host PC with ubuntu 24 (amd64 noble).
       Compile ubuntu-noble and ubuntu-oracular using lb version 3.0~a57-1.
-      Compile debian, ubuntu-focal and ubuntu-jammy using lb version 20230502.
+      Compile debian and ubuntu-jammy using lb version 20230502.
 
 Steps to build rockpi4b sdcard image:
 
@@ -31,7 +31,15 @@ Steps to build rockpi4b sdcard image:
    sudo dpkg -i live-build_3.0~a57-1ubuntu41.22.04.1_all.deb
    lb --version ( 3.0~a57-1 /usr/bin/lb )
 
-   For debian, ubuntu-focal  and ubuntu-jammy:
+   For debian and ubuntu-jammy:
+   wget http://ftp.debian.org/debian/pool/main/l/live-build/live-build_20240810.tar.xz
+   tar xvf live-build_20240810.tar.xz
+   cd live-build
+   sudo make install
+   vi Makefile ( search LANGUAGE in $(LANGUAGES), delete for .. to done )
+   sudo make install
+   lb --version ( 20240810 )
+
    wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20230502/live-build_20230502.tar.xz
    tar xvf live-build_20230502.tar.xz
    cd live-build
@@ -78,94 +86,78 @@ Steps to build rockpi4b sdcard image:
 6. cd ~/build-rockpi4b/rootfs-bullseye  ( Compile debian bullseye rootfs )
    make rootfs        ( has desktop )
    The results are in ./linaro-rootfs.img linaro-esp.img
-
-   make basicrootfs   ( no desktop )
-   The results are in ./linaro-basicrootfs.img linaro-esp.img
    make clean
 
 7. cd ~/build-rockpi4b/rootfs-bookworm  ( Compile debian bookworm rootfs )
    make rootfs        ( has desktop )
    The results are in ./linaro-rootfs.img linaro-esp.img
-
-   make basicrootfs   ( no desktop )
-   The results are in ./linaro-basicrootfs.img linaro-esp.img
    make clean
 
-8. cd ~/build-rockpi4b/rootfs-ubuntu-focal  ( Compile debian ubuntu-focal rootfs )
+8. cd ~/build-rockpi4b/rootfs-ubuntu-jammy  ( Compile debian ubuntu-jammy rootfs )
    make rootfs
    The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
-9. cd ~/build-rockpi4b/rootfs-ubuntu-jammy  ( Compile debian ubuntu-jammy rootfs )
+9. cd ~/build-rockpi4b/rootfs-ubuntu-noble  ( Compile ubuntu-noble rootfs )
    make rootfs
    The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
-10. cd ~/build-rockpi4b/rootfs-ubuntu-noble  ( Compile ubuntu-noble rootfs )
+10. cd ~/build-rockpi4b/rootfs-ubuntu-oracular  ( Compile ubuntu-oracular rootfs )
     make rootfs
     The results are in ./linaro-rootfs.img linaro-esp.img
     make clean
 
-11. cd ~/build-rockpi4b/rootfs-ubuntu-oracular  ( Compile ubuntu-oracular rootfs )
-    make rootfs
-    The results are in ./linaro-rootfs.img linaro-esp.img
-    make clean
-
-12. cd ~/build-rockpi4b/bullseye-gnome  ( Build debian bullseye gnome-desktop image )
+11. cd ~/build-rockpi4b/bullseye-gnome  ( Build debian bullseye gnome-desktop image )
     Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-13. cd ~/build-rockpi4b/bookworm-gnome  ( Build debian bookworm gnome-desktop image )
+12. cd ~/build-rockpi4b/bookworm-gnome  ( Build debian bookworm gnome-desktop image )
     Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC. 
 
-14. cd ~/build-rockpi4b/ubuntu-focal  ( Build ubuntu-focal image )
+13. cd ~/build-rockpi4b/ubuntu-jammy  ( Build ubuntu-jammy image )
     Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-15. cd ~/build-rockpi4b/ubuntu-jammy  ( Build ubuntu-jammy image )
+14. cd ~/build-rockpi4b/ubuntu-noble  ( Build ubuntu-noble image )
     Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-16. cd ~/build-rockpi4b/ubuntu-noble  ( Build ubuntu-noble image )
+15. cd ~/build-rockpi4b/ubuntu-oracular  ( Build ubuntu-oracular image )
     Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
 
-17. cd ~/build-rockpi4b/ubuntu-oracular  ( Build ubuntu-oracular image )
-    Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
-    sudo ./mksdcardimg.sh
-    Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
+16. cd ~/build-rockpi4b/yocto  ( Build yocto image )
 
-18. cd ~/build-rockpi4b/yocto  ( Build yocto image )
+17. cd ~/build-rockpi4b/yocto-lxde  ( Build yocto lxde-desktop image )
 
-19. cd ~/build-rockpi4b/yocto-lxde  ( Build yocto lxde-desktop image )
+18. cd ~/build-rockpi4b/yocto-xfce  ( Build yocto xfce-desktop image )
 
-20. cd ~/build-rockpi4b/yocto-xfce  ( Build yocto xfce-desktop image )
+19. cd ~/build-rockpi4b/buildroot   ( Build buildroot image )
 
-21. cd ~/build-rockpi4b/buildroot   ( Build buildroot image )
+20. cd ~/build-rockpi4b/android     ( Build android image )
 
-22. cd ~/build-rockpi4b/android     ( Build android image )
-
-23. cd ~/build-rockpi4b/rootfs-bullseyegpio  ( Compile debian bullseye rootfs )
+21. cd ~/build-rockpi4b/rootfs-bullseyegpio  ( Compile debian bullseye rootfs )
     make rootfs
     The results are in ./linaro-rootfs.img linaro-esp.img
     make clean
 
-24. cd ~/build-rockpi4b/bullseye-gpio  ( gpio test in bullseye-lxde )
+22. cd ~/build-rockpi4b/bullseye-gpio  ( gpio test in bullseye-lxde )
 
-25. cd ~/build-rockpi4b/bullseye-pn532nfc  ( pn532nfc test in bullseye-lxde )
+23. cd ~/build-rockpi4b/bullseye-pn532nfc  ( pn532nfc test in bullseye-lxde )
 
-26. cd ~/build-rockpi4b/bullseye-flightaware  ( flightaware in bullseye-lxde ) 
+24. cd ~/build-rockpi4b/bullseye-flightaware  ( flightaware in bullseye-lxde ) 
 
-27. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
+25. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
 
-28. cd ~/build-rockpi4b/fedora          ( Build fedora image )
+26. cd ~/build-rockpi4b/fedora          ( Build fedora image )
 
-29. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
+27. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
 
-30. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )
+28. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )

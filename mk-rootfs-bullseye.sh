@@ -98,6 +98,9 @@ cp /packages/rkwifibt/brcmfmac43456-sdio.radxa,rockpi4b.txt /lib/firmware/brcm/
 cp /packages/rkwifibt/BCM4345C5.hcd /lib/firmware/brcm/
 apt-get install -f -y
 
+# Disable wayland session
+sed -i 's/#WaylandEnable=false/WaylandEnable=false/g' /etc/gdm3/daemon.conf
+
 systemctl enable rc-local
 systemctl enable resize-helper
 update-initramfs -c -k 6.9.0-rc5

@@ -11,7 +11,7 @@ clean:
 
 cleanall:
 	sudo lb clean --purge
-	\rm -rf config .build rootfs
+	\rm -rf config .build rootfs local
 	\rm -rf linaro-rootfs.img linaro-basicrootfs.img
 
 prebuild:
@@ -35,6 +35,11 @@ prebuild:
 	--gzip-options '-9 --rsyncable' \
 	--linux-flavours none \
 	--linux-packages none \
+	--parent-mirror-binary 'http://ftp.us.debian.org/debian/' \
+	--parent-mirror-binary-security 'http://security.debian.org/debian-security/' \
+	--parent-mirror-bootstrap 'http://ftp.us.debian.org/debian/' \
+	--parent-mirror-chroot 'http://ftp.us.debian.org/debian/' \
+	--parent-mirror-chroot-security 'http://security.debian.org/debian-security/' \
 	--mode debian \
 	--security true \
 	--system normal
