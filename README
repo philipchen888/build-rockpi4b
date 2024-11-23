@@ -31,6 +31,7 @@ Steps to build rockpi4b sdcard image:
    sudo dpkg -i live-build_3.0~a57-1ubuntu41.22.04.1_all.deb
    lb --version ( 3.0~a57-1 /usr/bin/lb )
 
+   For Debian and Ubuntu-jammy:
    wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20230502/live-build_20230502.tar.xz
    tar xvf live-build_20230502.tar.xz
    cd live-build
