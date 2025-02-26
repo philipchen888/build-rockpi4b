@@ -35,14 +35,12 @@ trap finish ERR
 echo -e "\033[36m Extract image \033[0m"
 sudo tar -xpf live-image-arm64.tar.tar.gz
 
-sudo cp -rf ../linux/linux/tmp/lib/modules $TARGET_ROOTFS_DIR/lib
+sudo cp -rf ../kernel/kernel/tmp/lib/modules $TARGET_ROOTFS_DIR/lib
 
 # packages folder
 sudo mkdir -p $TARGET_ROOTFS_DIR/packages
 sudo cp -rf ../packages/$ARCH/* $TARGET_ROOTFS_DIR/packages
-sudo cp -rf ../linux/linux/tmp/boot/* $TARGET_ROOTFS_DIR/boot
-sudo cp ../linux/patches/40_custom_uuid $TARGET_ROOTFS_DIR/boot
-sudo cp ../linux/patches/debian/fstab $TARGET_ROOTFS_DIR/boot
+sudo cp ../kernel/patches/debian/fstab $TARGET_ROOTFS_DIR/boot
 
 # overlay folder
 sudo cp -rf ../overlay/* $TARGET_ROOTFS_DIR/
@@ -66,29 +64,10 @@ resolvconf -u
 apt-get update
 \rm -rf /etc/initramfs/post-update.d/z50-raspi-firmware
 apt-get upgrade -y
-apt-get install -y build-essential git wget firmware-linux grub-efi-arm64 e2fsprogs zstd
+apt-get install -y build-essential git wget firmware-linux
 
-# Install and configure GRUB
 cp /boot/fstab /etc/fstab
 rm -rf /boot/fstab
-mkdir -p /boot/efi
-grub-install --target=arm64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
-update-grub
-
-cp /boot/40_custom_uuid /etc/grub.d/
-chmod +x /etc/grub.d/40_custom_uuid
-rm -rf /boot/40_custom_uuid
-
-# Migrate extlinux.conf to GRUB
-rm -rf /boot/extlinux
-cat << GRUB_EOF > /etc/default/grub
-GRUB_DEFAULT="Boot from UUID"
-GRUB_TIMEOUT=5
-GRUB_CMDLINE_LINUX_DEFAULT="quiet"
-GRUB_CMDLINE_LINUX=""
-GRUB_EOF
-
-update-grub
 
 chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
 chmod +x /etc/rc.local
@@ -98,12 +77,9 @@ cp /packages/rkwifibt/brcmfmac43456-sdio.radxa,rockpi4b.txt /lib/firmware/brcm/
 cp /packages/rkwifibt/BCM4345C5.hcd /lib/firmware/brcm/
 apt-get install -f -y
 
-# Disable wayland session
-sed -i 's/#WaylandEnable=false/WaylandEnable=false/g' /etc/gdm3/daemon.conf
-
 systemctl enable rc-local
 systemctl enable resize-helper
-update-initramfs -c -k 6.9.0-rc5
+chsh -s /bin/bash linaro
 
 #---------------Clean--------------
 rm -rf /var/lib/apt/lists/*

@@ -4,7 +4,7 @@ import binascii
 from periphery import SPI
 
 # Open spidev0.0 with mode 0 and max speed 1MHz
-spi = SPI("/dev/spidev32766.0", 0, 1000000)
+spi = SPI("/dev/spidev0.0", 0, 1000000)
 
 STATUS_READ                   = (0x2)
 DATA_WRITE                    = (0x1)

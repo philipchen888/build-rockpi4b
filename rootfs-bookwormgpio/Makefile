@@ -1,7 +1,7 @@
 export BOARD=radxa
 export LB_BOOTSTRAP_INCLUDE="apt-transport-https gnupg"
 export ARCH=arm64
-export CROSS_COMPILE=/usr/local/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+export CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-
 
 rootfs: clean prebuild buildrootfs postbuild mkimage
 
@@ -12,7 +12,7 @@ clean:
 cleanall:
 	sudo lb clean --purge
 	\rm -rf config .build rootfs local
-	\rm -rf linaro-rootfs.img
+	\rm -rf linaro-rootfs.img linaro-basicrootfs.img
 
 prebuild:
 	lb config \
@@ -20,7 +20,7 @@ prebuild:
 	--apt-recommends false \
 	--apt-secure false \
 	--architectures arm64 \
-	--archive-areas 'main contrib non-free' \
+	--archive-areas 'main contrib non-free-firmware' \
 	--backports false \
 	--binary-filesystem ext4 \
 	--binary-images tar \
@@ -31,7 +31,7 @@ prebuild:
 	--chroot-filesystem none \
 	--compression gzip \
 	--debootstrap-options "--variant=minbase --include=apt-transport-https,gnupg" \
-	--distribution bullseye \
+	--distribution bookworm \
 	--gzip-options '-9 --rsyncable' \
 	--linux-flavours none \
 	--linux-packages none \
@@ -50,7 +50,7 @@ buildrootfs:
 	sudo lb build
 
 postbuild:
-	ARCH=arm64 $(PWD)/../mk-rootfs-bullseyegpio.sh
+	ARCH=arm64 $(PWD)/../mk-rootfs-bookwormgpio.sh
 
 mkimage:
 	$(PWD)/../mk-image.sh

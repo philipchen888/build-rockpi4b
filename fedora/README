@@ -3,16 +3,16 @@ Build fedora sdcard image for rockpi4b:
 cd ~/Downloads
 wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/38/Workstation/aarch64/images/Fedora-Workstation-38-1.6.aarch64.raw.xz
 
-Plugin USB2 SATA SSD to PC. 
+Plugin NVMe-SSD to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
 sudo mkfs.ext4 /dev/sda3
 sudo fdisk -l /dev/sda
 xzcat ~/Downloads/Fedora-Workstation-38-1.6.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 conv=notrunc,fsync
-Eject USB2 SATA SSD from PC.
+Eject NVMe-SSD from PC.
 
-Plugin USB2 SATA SSD to rockpi4b. Plugin USB wifi dongle to rockpi4b. Power on rockpi4b.
+Plugin NVMe-SSD to rockpi4b. Plugin USB wifi dongle to rockpi4b. Power on rockpi4b.
 
 Disable power saving and screen saver.
 
@@ -37,27 +37,43 @@ sudo reboot
 
 df .
 uname -a
-sudo dnf install speedtest-cli glmark2 mpv yt-dlp pavucontrol openssl-devel
+sudo dnf install speedtest-cli glmark2 mpv yt-dlp pavucontrol openssl-devel vsftpd vlc pandoc
+
 glmark2-es2-wayland
 speedtest-cli
 
 aplay -l
 pavucontrol  ( select hdmi as default )
 
-yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
+cvlc --gl=wgl --glconv=any avemaria.mp4
 
 ----------------------------------------------------
-Compile and install custom kernel
+Compile and install mainline kernel
 ----------------------------------------------------
 
-wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.9-rc5.tar.gz
-tar -xzf linux-6.9-rc5.tar.gz
-mv linux-6.9-rc5 linux
+wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.14-rc3.tar.gz
+tar -xzf linux-6.14-rc3.tar.gz
+mv linux-6.14-rc3 linux
+vi ./linux/arch/arm64/configs/defconfig ( enable NVMe change to:
+CONFIG_PHY_ROCKCHIP_PCIE=y
+CONFIG_BLK_DEV_NVME=y
+CONFIG_PCIE_ROCKCHIP_HOST=y
+CONFIG_SATA_AHCI=y
+CONFIG_EXT4_FS=y
+CONFIG_PCIEPORTBUS=y
+CONFIG_SQUASHFS_XZ=y
+)
+
 cd linux
 sudo make mrproper
 make ARCH=arm64 defconfig
-make ARCH=arm64 all -j6             ( it may take 4 hours to compile kernel in terminal )
+make ARCH=arm64 all -j$(nproc)      ( it may take 4 hours to compile kernel in terminal )
 sudo \rm /boot/dtb
 sudo make ARCH=arm64 modules_install
 sudo make ARCH=arm64 dtbs_install
@@ -66,50 +82,35 @@ sudo make ARCH=arm64 install
 ls -la /boot
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 sudo grubby --default-kernel
-sudo grubby --set-default /boot/vmlinuz-6.9.0-rc5
+sudo grubby --set-default /boot/vmlinuz-6.14.0-rc3
 sudo grubby --default-kernel
-sudo vi /boot/loader/entries/3d88012365704020aeba303ade696fb8-6.9.0-rc5.conf ( after options, add
-devicetree /boot/dtbs/6.9.0-rc5/rockchip/rk3399-rock-pi-4b.dtb
+sudo vi /boot/loader/entries/6c37e9c6997d495891132034b2eeedc1-6.14.0-rc3.conf ( after options, add
+devicetree /boot/dtbs/6.14.0-rc3/rockchip/rk3399-rock-pi-4b.dtb
 )
 sudo vi /boot/grub2/grub.cfg
 sudo ls -l /boot/loader/entries/
 sync
 
-ftp ~/build-rockpi4b/fedora/patches/* /lib/firmware/brcm
+sudo systemctl start vsftpd
+sudo systemctl enable vsftpd
+sudo vi /etc/vsftpd/vsftpd.conf  ( anonymous_enable=NO local_enable=YES write_enable=YES )
+sudo systemctl restart vsftpd
+ftp ~/build-rockpi4b/fedora/packages/* /lib/firmware/brcm
 
 sudo reboot    ( If USB wifi dongle is not working, plugin ethernet cable to rockpi4b )
-
+Remove USB wifi dongle.
+Setup wifi.
 uname -a
 cat /etc/fedora-release
 speedtest-cli
 glmark2-es2-wayland
+aplay -l
+pavucontrol  ( select card 1 as default )
+firefox -> youtube -> search YmDNhi07_Ho
 mpv avemaria.mp4
-
--------------------------------------------------------
-Upgrade to fedora40
--------------------------------------------------------
-
-sudo dnf --refresh upgrade
-sudo dnf system-upgrade download --releasever=40 --exclude=kernel*
-sync
-sudo dnf system-upgrade --exclude=kernel* reboot  ( it may take 1 hour )
-
-df .
-uname -a
-cat /etc/fedora-release
-sudo dnf update --exclude=kernel*
-sync
-sudo reboot
-
-uname -a
-cat /etc/fedora-release
-speedtest-cli
-glmark2-es2-wayland
-
-sudo dnf install pandoc
-git clone https://github.com/yt-dlp/yt-dlp.git
-cd yt-dlp
-make
-cd ../
-~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
-mpv avemaria.mp4
+cvlc --gl=wgl --glconv=any avemaria.mp4
+sudo rfkill list
+bluetoothctl
+scan on
+scan off
+quit

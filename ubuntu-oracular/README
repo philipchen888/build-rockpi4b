@@ -3,11 +3,11 @@ Build ubuntu-oracular sdcard for Radxa rockpi4b:
 Input files: ../rootfs-ubuntu-oracular/linaro-esp.img
              ../rootfs-ubuntu-oracular/linaro-rootfs.img
 
-Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+Plugin NVME-SSD/sdcard/emmc to PC.
 sudo ./mksdcardimg.sh
-Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
+Eject NVME-SSD/sdcard/emmc from PC.
 
-Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to SBC
+Plugin NVME-SSD/sdcard/emmc to rockpi4b.
 Login:
 Username: linaro
 Password: linaro
@@ -40,7 +40,7 @@ echo $XDG_SESSION_TYPE
 Check audio driver: ( pulseaudio or pipewire )
 pactl info
 
-sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2-wayland pandoc
+sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2-wayland pandoc vlc vlc-plugin-video-output
 
 speedtest-cli --secure
 
@@ -60,6 +60,7 @@ make
 cd ../
 ~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
+cvlc --gl=wgl --glconv=any avemaria.mp4
 
 sudo rfkill list
 hciconfig hci0

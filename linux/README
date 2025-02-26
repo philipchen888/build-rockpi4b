@@ -1,10 +1,10 @@
 Compile mainline kernel:
 
-wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.9-rc5.tar.gz
-tar -xzf linux-6.9-rc5.tar.gz
-mv linux-6.9-rc5 linux
+wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.14-rc3.tar.gz
+tar -xzf linux-6.14-rc3.tar.gz
+mv linux-6.14-rc3 linux
 
-Set follows in defconfig to enable NVMe:
+vi ./linux/arch/arm64/configs/defconfig ( enable NVMe change to:
 CONFIG_PHY_ROCKCHIP_PCIE=y
 CONFIG_BLK_DEV_NVME=y
 CONFIG_PCIE_ROCKCHIP_HOST=y
@@ -12,8 +12,6 @@ CONFIG_SATA_AHCI=y
 CONFIG_EXT4_FS=y
 CONFIG_PCIEPORTBUS=y
 CONFIG_SQUASHFS_XZ=y
-
+)
 \rm -rf out; mkdir out;
 make kernel
-
-The result is in ./out/boot.img 

@@ -1,8 +1,31 @@
 Compile vendor kernel:
 
-git clone https://github.com/radxa/kernel --depth=1 -b 4.4.154-90-rockchip
-vi kernel/scripts/dtc/dtc-lexer.l dtc-lexer.lex.c_shipped ( change YYLTYPE yylloc; to extern YYLTYPE yylloc; )
-vi ./kernel/arch/arm64/boot/dts/rockchip/rk3399.dtsi ( change max-link-speed = <1>; to max-link-speed = <2>; )
+git clone https://github.com/radxa/kernel --depth=1 -b linux-5.10.y
+vi ./kernel/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( add
+
+&i2c7 {
+        i2c-scl-rising-time-ns = <450>;
+        i2c-scl-falling-time-ns = <15>;
+        status = "okay";
+};
+
+&uart4 {
+        status = "okay";
+};
+
+&spi2 {
+        status = "okay";
+        devspi@0 {
+                reg = <0>;
+                compatible ="rockchip,spidev";
+                spi-max-frequency = <50000000>;
+        };
+};
+
+&pwm1 {
+        status = "okay";
+};
+)
 
 \rm -rf out; mkdir out;
 make kernel

@@ -3,11 +3,11 @@ Build bookworm-gnome sdcard for Radxa rockpi4b:
 Input files: ../rootfs-bookworm/linaro-esp.img
              ../rootfs-bookworm/linaro-rootfs.img
 
-Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+Plugin NVME-SSD/sdcard/emmc to PC.
 sudo ./mksdcardimg.sh
-Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
+Eject NVME-SSD/sdcard/emmc from PC.
 
-Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to rockpi4b.
+Plugin NVME-SSD/sdcard/emmc to rockpi4b.
 Login:
 Username: linaro
 Password: linaro
@@ -32,12 +32,11 @@ echo $XDG_SESSION_TYPE
 Check audio driver: ( pulseaudio or pipewire )
 pactl info
 
-sudo apt install speedtest-cli python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv glmark2-es2-x11 glmark2-es2-wayland pandoc
+sudo apt install speedtest-cli python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv glmark2-es2-wayland pandoc vlc vlc-plugin-video-output
 
 speedtest-cli --secure
 
-glmark2-es2-wayland   ( for wayland )
-glmark2-es2           ( for x11 )
+glmark2-es2-wayland
 
 aplay -l
 pavucontrol  ( select card 1 as default )
@@ -50,6 +49,7 @@ make
 cd ../
 ~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
+cvlc --gl=wgl --glconv=any avemaria.mp4
 
 sudo rfkill list
 hciconfig hci0

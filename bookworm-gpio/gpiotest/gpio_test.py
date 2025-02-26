@@ -461,7 +461,7 @@ def oledascii():
 def ssd1306_test():
     initpin(led, 'out')
     setpin(led, 1)
-    spi.open(32766, 0)
+    spi.open(0, 0)
     spi.max_speed_hz = 5000000
     ssd1306_init()
 

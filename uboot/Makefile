@@ -1,6 +1,6 @@
 export OUT=$(PWD)/out
 export ARCH=arm64
-export CROSS_COMPILE=/usr/local/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
+export CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-
 export BL31=$(PWD)/rkbin/bin/rk33/rk3399_bl31_v1.35.elf
 
 u-boot: cleanuboot builduboot postbuilduboot
@@ -16,7 +16,6 @@ cleanuboot:
 
 builduboot:
 	rm -rf out; mkdir out;
-	cp ./patches/rock-pi-4-rk3399_defconfig ./u-boot/configs
 	cd u-boot; \
 	make clean; \
 	make ARCH=arm64 rock-pi-4-rk3399_defconfig; \

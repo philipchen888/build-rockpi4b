@@ -101,7 +101,7 @@ apt-get install -f -y
 systemctl enable rc-local
 systemctl enable resize-helper
 chsh -s /bin/bash linaro
-update-initramfs -c -k 6.9.0-rc5
+update-initramfs -c -k 6.14.0-rc3
 
 #---------------Clean--------------
 rm -rf /var/lib/apt/lists/*

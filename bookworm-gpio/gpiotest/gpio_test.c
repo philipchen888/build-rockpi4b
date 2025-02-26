@@ -15,6 +15,9 @@
 #define TRUE    (1==1)
 #define FALSE   (!TRUE)
 
+int led = 154;
+int switch1 = 156;
+
 //----- UART ---------------------------------------------
 
 char *readLine(int fd) {
@@ -138,16 +141,16 @@ int led_test(void) {
     int i;
 
     printf("led test, blink led 5 times.\n");
-    initpin( 154, "out" );
+    initpin( led, "out" );
 
     for ( i = 0; i < 5; i++ ) {
-        setpin( 154, 1 );
+        setpin( led, 1 );
         sleep( 1 );
-        setpin( 154, 0 );
+        setpin( led, 0 );
         sleep( 1 );
     }
 
-    closepin( 154 );
+    closepin( led );
     return 0;
 }
 
@@ -157,26 +160,26 @@ int button_test( void )
     int old_state;
     int current_state;
     printf( "Push button 10 times.\n" );
-    initpin( 154, "out" );
-    initpin( 156, "in" );
+    initpin( led, "out" );
+    initpin( switch1, "in" );
 
     old_state = 0;
     current_state = 0;
     for ( i = 0; i < 10; ) {
-        current_state = getpin( 156 );
+        current_state = getpin( switch1 );
         if ( old_state == 0 && current_state == 1 ) {
-            setpin( 154, 1 );
+            setpin( led, 1 );
             old_state = current_state;
         } else if ( old_state == 1 && current_state == 0 ) {
-            setpin( 154, 0 );
+            setpin( led, 0 );
             old_state = current_state;
             i++;
         }
         usleep( 100000 );
     }
 
-    closepin( 154 );
-    closepin( 156 );
+    closepin( led );
+    closepin( switch1 );
     return 0;
 }
 
@@ -557,7 +560,7 @@ void ssd1306_init( int spi )
 {
     unsigned char myData[] = {0xa8, 0x3f, 0xd3, 0x0, 0x40, 0xa0, 0xc0, 0xda, 0x2, 0x81, 0x7f, 0xa4, 0xa6, 0xd5, 0x80, 0x8d, 0x14, 0xaf};
 
-    setpin( 154, 0);
+    setpin( led, 0);
     spi_write( spi, myData, 18 );
 }
 
@@ -565,7 +568,7 @@ void set_col_addr( int spi, int col_start, int col_end )
 {
     unsigned char myData[3];
 
-    setpin( 154, 0) ;
+    setpin( led, 0) ;
 
     myData[0] = 0x21;
     myData[1] = col_start & 0x7f;
@@ -577,7 +580,7 @@ void set_page_addr( int spi, int page_start, int page_end )
 {
     unsigned char myData[3];
 
-    setpin( 154, 0) ;
+    setpin( led, 0) ;
 
     myData[0] = 0x22;
     myData[1] = page_start & 0x3;
@@ -589,7 +592,7 @@ void set_horizontal_mode( int spi )
 {
     unsigned char myData[2];
 
-    setpin( 154, 0) ;
+    setpin( led, 0) ;
 
     myData[0] = 0x20;
     myData[1] = 0x00;
@@ -600,7 +603,7 @@ void set_start_page( int spi, int page )
 {
     unsigned char myData[1];
 
-    setpin( 154, 0) ;
+    setpin( led, 0) ;
 
     myData[0] = 0xB0 | (page & 0x3);
     spi_write( spi, myData, 1 );
@@ -610,7 +613,7 @@ void set_start_col( int spi, int col )
 {
     unsigned char myData[2];
 
-    setpin( 154, 0) ;
+    setpin( led, 0) ;
 
     myData[0] = 0xf & col;
     myData[1] = (0xf & (col >> 4)) | 0x10;
@@ -625,7 +628,7 @@ void clearDisplay( int spi )
 
     set_col_addr( spi, 0, 127 );
     set_page_addr( spi, 0, 3 );
-    setpin( 154, 1 );
+    setpin( led, 1 );
     for (j=0; j<4; j++) {
         for (k=0; k<8; k++) {
             unsigned char myData[16];
@@ -666,7 +669,7 @@ void oledprintf( int spi, unsigned char *ch )
           } else {
               set_page_addr( spi, 2, 3 );
           }
-          setpin( 154, 1 );
+          setpin( led, 1 );
           spi_write( spi, mychar, 12 );
           start_col += 7;
       } else {
@@ -703,7 +706,7 @@ void oledascii( int spi )
             } else {
                 set_page_addr( spi, 2, 3 );
             }
-            setpin( 154, 1 );
+            setpin( led, 1 );
             spi_write( spi, mychar, 12 );
             start_col += 7;
             if ( start_col >= 112 ) {
@@ -724,9 +727,9 @@ int ssd1306_test( void )
     u_int32_t speed = 5000000;
     u_int8_t bits = 8;
 
-    initpin( 154, "out" ); 
-    setpin( 154, 1 );
-    if ((spi = open( "/dev/spidev32766.0", O_RDWR )) < 0) {
+    initpin( led, "out" ); 
+    setpin( led, 1 );
+    if ((spi = open( "/dev/spidev0.0", O_RDWR )) < 0) {
         printf("Failed to open the bus.");
         exit( 1 );
     }
@@ -750,7 +753,7 @@ int ssd1306_test( void )
     set_col_addr( spi, 0, 127 );
     set_page_addr( spi, 0, 3 );
   
-    setpin( 154, 1 );
+    setpin( led, 1 );
     for (j=0; j < 4; j++) {
         for (i=0; i < 128; i=i+8) {
 	    unsigned char myData[] = {0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81};
@@ -765,7 +768,7 @@ int ssd1306_test( void )
     clearDisplay( spi );
     oledprintf( spi, "This is a test !\nIt works !\n" );
 
-    closepin( 154 );
+    closepin( led );
     close( spi );
     return 0;
 }
