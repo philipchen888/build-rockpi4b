@@ -2,46 +2,71 @@ Build yocto sdcard image for Radxa rockpi4b:
 
    mkdir ${HOME}/download
    mkdir ${HOME}/sstate-cache
-   sudo apt install libgnutls28-dev
-   git clone git://git.yoctoproject.org/poky --depth=1 -b dunfell
+   git clone git://git.yoctoproject.org/poky --depth=1 -b master
    cd poky
-   git clone git://git.openembedded.org/meta-openembedded.git --depth=1 -b dunfell
-   git clone https://github.com/radxa/meta-radxa.git --depth=1 -b dunfell
-   git clone https://github.com/YoeDistro/meta-python2.git --depth=1 -b dunfell
+   git clone git://git.openembedded.org/meta-openembedded.git --depth=1 -b master
+   git clone https://github.com/jonmason/meta-arm.git --depth=1 -b master
+   git clone https://git.yoctoproject.org/meta-rockchip.git --depth=1 -b master
    source oe-init-build-env
    cd ../../
    make apply_patches
 
    cd poky; source oe-init-build-env;
    bitbake -s
-   bitbake -c cleansstate radxa-desktop-image u-boot-rockchip
-   bitbake -k u-boot-rockchip  ( if linux-rockpi-4-4.4.154-r1 failed to compile, vi poky/build/tmp/work-shared/rockpi-4b-rk3399/kernel-source/scripts/dtc/dtc-lexer.lex.c_shipped and dtc-lexer.l, change YYLTYPE yylloc; to extern YYLTYPE yylloc;, then bitbake -k u-boot-rockchip again )
-   if rockpi-4b-rk3399': No such file or directory, then bitbake -k u-boot-rockchip again
-   bitbake -k radxa-desktop-image
+   bitbake -c cleansstate u-boot linux-yocto core-image-weston
+   bitbake -k u-boot
+   bitbake -k linux-yocto
+   bitbake -k core-image-weston
 
-   The result is in ./tmp/deploy/images/rockpi-4b-rk3399/radxa-desktop-image-rockpi-4b-rk3399-gpt.img
+   The result is in ./tmp/deploy/images/rock-pi-4b/core-image-weston-rock-pi-4b.rootfs.wic
 
-   sudo dd if=./tmp/deploy/images/rockpi-4b-rk3399/radxa-desktop-image-rockpi-4b-rk3399-gpt.img of=/dev/sda bs=4096 conv=notrunc,fsync
+   Plugin sdcard to PC.
+   sudo dd if=./tmp/deploy/images/rock-pi-4b/core-image-weston-rock-pi-4b.rootfs.wic of=/dev/sda bs=4096 conv=notrunc,fsync
 
-   Eject sdcard. Plugin sdcard again.
-   sudo vi /media/$USER/*/etc/network/interfaces ( delete everything after iface lo inet loopback )
+   sudo blkid /dev/sda1
+   sudo mount /dev/sda1 /mnt
+   sudo \rm -rf /mnt/boot/*
+   sudo \rm -rf /mnt/lib/modules/*
+   sudo cp -r ../../../kernel/kernel/tmp/boot/* /mnt/boot
+   sudo mkdir /mnt/boot/extlinux
+   sudo cp ../../../patches/extlinux.conf /mnt/boot/extlinux/
+   sudo vi /mnt/boot/extlinux/extlinux.conf ( change to PARTUUID=7bdde4a8-88 )
+   sudo cp -r ../../../kernel/kernel/tmp/lib/modules/* /mnt/lib/modules
+   sudo vi /mnt/etc/network/interfaces ( delete everything after iface lo inet loopback )
+   sudo vi /mnt/etc/xdg/weston/weston.ini ( add
+   [core]
+   xwayland=true
+   idle-time=0
+
+   [libinput]
+   enable_tap=true
+
+   [shell]
+   locking=false
+   cursor-theme=Adwaita
+   cursor-size=16
+   )
    sync
-   Eject sdcard.
+   sudo umount /mnt
+   Eject sdcard from PC.
 
    \rm -rf ./tmp/work
 
-plugin sdcard to SBC
-login:
-username: root
-password: rock
+Plugin sdcard and ethernet cable to SBC.
 
-nmcli dev wifi connect "SSID" password "PASSWORD"
+uname -a
+su -
+passwd
+adduser linaro
+usermod -aG sudo linaro
+sync
+reboot
+
+ssh root@192.168.86.250
 
 \rm /etc/localtime
 ln -s /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
 date
-
-adduser linaro
 
 aplay -l
 vi /etc/asound.conf ( add
@@ -57,15 +82,7 @@ card 1
 sync
 reboot
 
-To disable screen blank:
-vi /etc/rc.local ( add
-#!/bin/sh
-/usr/bin/xset -dpms s off s noblank s 0 0 s noexpose
-
-chmod 755 /etc/rc.local
-source /etc/rc.local
-
-glmark2-es2-drm
+glmark2-es2-wayland
 
 aplay /home/linaro/yoursong.wav
 mpv --no-video /home/linaro/yoursong.mp3

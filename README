@@ -116,24 +116,20 @@ Steps to build rockpi4b sdcard image:
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc from PC.
 
-13. cd ~/build-rockpi4b/yocto  ( Build yocto image )
+13. cd ~/build-rockpi4b/yocto           ( Build yocto image )
 
-14. cd ~/build-rockpi4b/yocto-lxde  ( Build yocto lxde-desktop image )
+14. cd ~/build-rockpi4b/buildroot       ( Build buildroot image )
 
-15. cd ~/build-rockpi4b/yocto-xfce  ( Build yocto xfce-desktop image )
+15. cd ~/build-rockpi4b/android         ( Build android image )
 
-16. cd ~/build-rockpi4b/buildroot   ( Build buildroot image )
+16. cd ~/build-rockpi4b/bookworm-gpio   ( gpio and pn532nfc tests in bookworm )
 
-17. cd ~/build-rockpi4b/android     ( Build android image )
+17. cd ~/build-rockpi4b/bookworm-flightaware  ( flightaware in bookworm ) 
 
-18. cd ~/build-rockpi4b/bookworm-gpio  ( gpio and pn532nfc tests in bookworm )
+18. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
 
-19. cd ~/build-rockpi4b/bookworm-flightaware  ( flightaware in bookworm ) 
+19. cd ~/build-rockpi4b/fedora          ( Build fedora image )
 
-20. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
+20. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
 
-21. cd ~/build-rockpi4b/fedora          ( Build fedora image )
-
-22. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
-
-23. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )
+21. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )
