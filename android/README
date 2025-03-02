@@ -25,28 +25,21 @@ exit
 ---------------------------------------------------------------
 
 To compile android 11 from source, you need 500 GB hard drive space.
-See https://wiki.radxa.com/Rockpi4/rockpi-android11
-sudo apt-get update -y && apt-get install -y openjdk-8-jdk git-core gnupg flex bison gperf build-essential zip curl gawk liblz4-tool zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev libncurses5 x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip mtools u-boot-tools htop iotop sysstat iftop pigz bc device-tree-compiler lunzip dosfstools vim-common parted udev libssl-dev  sudo rsync python3-pyelftools cpio
-pip install pycrypto
-mkdir rock-android11; cd rock-android11;
-repo init -u https://github.com/radxa/manifests.git -b Android11_Radxa_rk11 -m rockchip-r-release.xml
-repo sync -d --no-tags -j4
-source build/envsetup.sh
-lunch rk3399_ROCKPI4B_Android11-userdebug
-./build.sh -UACKup  ( take more than 10 hours. If failed, run again )
-sudo dd if=./IMAGE/RK3399_ROCKPI4B_ANDROID11_USERDEBUG_RK3399-ROCKPI-4B_ENG..20240130.133757_20240130.1338/IMAGES/rk3399_ROCKPI4B_Android11_20240130.1338_gpt.img of=/dev/sda bs=4096 conv=notrunc,fsync
+See below.
 
 See https://wiki.radxa.com/Rock/linux_adb  to prepare PC for usb debug.
     https://wiki.radxa.com/Rockpi4/dev/adb
 
-To access ADB, you need a USB 3.0 male A to A cable(Upper USB3 port) and turn the USB OTG switch to Device mode.
+To access ADB, you need a USB 3.0 male A to A cable(Upper USB3 port) and turn the USB OTG switch to OTG mode ( switch to L/H side toward 40 pin header ).  ( See https://wiki.radxa.com/Rockpi4/dev/usb-host-and-otg-switch-on-rock-pi-4 )
 
+   When run Google Play Store, Got the device is not certified to run Google apps.
+   May need to fix it ASAP when android run on first day. Later the chrome won't work any more.
    Download Device ID apk from https://www.apkmirror.com/apk/evozi/device-id/device-id-1-3-2-release/
    cp ~/Downloads/'com.evozi.deviceid_1.3.2-8_minAPI14(nodpi).apk' deviceid.apk
    Install deviceid.apk.  ( see bellow to install )
    Open the Device ID app, and it will display the code for Google Service Framework (GSF). Click on it and “copy” the code.
-   Open https://google.com/android/uncertified on your rockpi4b and paste the GSF code. After that, click on “Register“
-   Wait for 20 minutes. Shutdown android. Power on.
+   Open https://google.com/android/uncertified on your rockpi4b, login google account, and paste the GSF code. After that, click on “Register“
+   Wait for 30 minutes. Shutdown android. Power on.
    Open Google Play Store -> sign in. Install YouTube, Solitaire etc.
 
 Connect USB 3.0 cable from PC to rockpi4b's Upper USB3 port in device mode.
@@ -87,6 +80,7 @@ adb install -r drawshape.apk
 adb install -r kaleidoscope.apk
 adb install -r myanalogclock.apk
 adb install -r randomsong.apk
+adb root
 adb shell
 mount -o ro,remount /
 exit
@@ -100,3 +94,74 @@ adb uninstall com.example.drawshape
 adb uninstall com.example.kaleidoscope
 adb uninstall com.example.myanalogclock
 adb uninstall com.example.randomsong
+
+-------------------------------------------------------
+
+Compile android from source:
+See https://github.com/radxa/manifests
+See https://wiki.radxa.com/Rockpi4/rockpi-android11
+
+Build environment setup:
+wget 'https://storage.googleapis.com/git-repo-downloads/repo' -P /tmp/
+sudo cp /tmp/repo /usr/local/bin/repo
+sudo chmod +x /usr/local/bin/repo
+sudo apt-get update
+sudo apt-get install openjdk-8-jdk git-core gnupg flex bison gperf build-essential zip curl liblz4-tool zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip mtools u-boot-tools htop iotop sysstat iftop pigz bc device-tree-compiler lunzip dosfstools vim-common parted udev
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+
+Download source code:
+mkdir rock-android11
+cd rock-android11
+repo init -u https://github.com/radxa/manifests.git -b Android11_Radxa_rk11 -m rockchip-r-release.xml
+repo sync -j$(nproc) -c
+
+Build u-boot:
+cd u-boot
+make distclean
+make mrproper
+./make.sh rockpi4b
+cd ..
+
+Building kernel:
+cd kernel
+make ARCH=arm64 rockchip_defconfig android-11.config rockpi_4b.config
+make ARCH=arm64 rk3399-rockpi-4b.img -j$(nproc)  ( delete unused functions and variables )
+cd ..
+
+sudo ln -s /usr/lib32/libncurses.so.6.4 /usr/lib32/libncurses.so.5
+sudo ln -s /usr/lib/x86_64-linux-gnu/libncurses.so.6.4 /usr/lib/x86_64-linux-gnu/libncurses.so.5
+
+sudo ln -s /usr/lib32/libtinfo.so.6.4 /usr/lib32/libtinfo.so.5
+sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.6.4 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
+
+Building AOSP:
+source build/envsetup.sh
+lunch rk3399_ROCKPI4B_Android11-userdebug
+make -j$(nproc)
+
+Build Android TV
+source build/envsetup.sh
+lunch rk3399_ROCKPI4B_Android11_box-userdebug
+make -j$(nproc)
+
+Generate images:
+ln -s RKTools/linux/Linux_Pack_Firmware/rockdev/ rockdev
+vi device/rockchip/common/device.mk  ( delete line 931 Please set client id with your own MADA ID )
+./mkimage.sh
+cd rockdev
+ln -s Image-rk3399_ROCKPI4B_Android11 Image
+./android-gpt.sh
+
+### Android TV
+cd rockdev
+ln -s Image-rk3399_ROCKPI4B_Android11_box Image
+./android-gpt.sh
+
+Plugin sdcard to PC.
+sudo dd if=Image/gpt.img of=/dev/sda bs=4M status=progress
+sync
+
+Eject sdcard from PC.
+Plugin sdcard and ethernet cable to rockpi4b. Power on rockpi4b.
