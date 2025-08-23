@@ -29,7 +29,7 @@ prebuild:
 	--cache false \
 	--chroot-filesystem none \
 	--compression gzip \
-	--distribution oracular \
+	--distribution plucky \
 	--gzip-options '-9 --rsyncable' \
 	--keyring-packages ubuntu-keyring \
 	--linux-flavours none \
@@ -49,10 +49,10 @@ buildrootfs:
 	sudo lb build
 
 postbuild:
-	ARCH=arm64 $(PWD)/../mk-rootfs-ubuntu-noble.sh
+	ARCH=arm64 $(PWD)/../mk-rootfs-ubuntu-plucky.sh
 
 mkimage:
 	$(PWD)/../mk-image.sh
 
 mkespimage:
-	$(PWD)/../mk-ubuntuespimage.sh
+	$(PWD)/../mk-pluckyespimage.sh

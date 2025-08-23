@@ -43,18 +43,16 @@ Plugin sdcard to SBC
 Login:
 Username: linaro
 Password: linaro
+Setup wif. Disable power saving, auto suspend and screen saver.
+sudo ifconfig
 uname -a
 lsb_release -a
-sudo ifconfig
 sudo dpkg-reconfigure tzdata
 sudo dpkg-reconfigure locales
 date
 sudo apt update
 sudo apt upgrade
 sync
-sudo shutdown -h now
-Power off, power on
-date
 
 sudo apt -y install build-essential python3-pip python3-setuptools python3-dev python3-smbus python3-spidev python3-smbus2 python3-serial python3-periphery speedtest-cli ffmpeg mpv glmark2-es2-wayland pandoc firefox-esr vlc vlc-plugin-video-output
 

@@ -1,4 +1,5 @@
 # Packages needed for Linaro - ALIP
+acpi-support-base
 adduser
 alsa-utils
 anacron
@@ -7,12 +8,14 @@ apt-utils
 bc
 bluez
 blueman
+bluetooth
 bzip2
 ca-certificates
 console-setup
-cpufrequtils
+# cpufrequtils
 curl
 dbus
+#dbus-x11
 debconf
 debconf-i18n
 debian-keyring
@@ -22,22 +25,21 @@ eject
 evtest
 fbset
 file
-#gconf2
+# gconf2
 gdisk
 git
-gnome
-gnome-keyring
-gnome-system-tools
 gstreamer1.0-libav
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-good
 gstreamer1.0-tools
 gvfs
+gvfs-backends
 hardinfo
 hostapd
 idlestat
 ifupdown
-initramfs-tools
+# initramfs-tools
+# initscripts
 input-utils
 iotop
 iperf
@@ -49,27 +51,26 @@ iw
 kbd
 kmod
 less
-gdm3
 lm-sensors
 locales
 lsb-release
 lsof
 desktop-base
-policykit-1
+# policykit-1
 network-manager
-makedev
+# makedev
 mawk
 mesa-utils
 mesa-utils-extra
 mesa-va-drivers
 mesa-vulkan-drivers
 libgl1-mesa-dri
-#mutrace
 net-tools
 netbase
 netcat-openbsd
-ntp
-ntpdate
+# ntp
+# ntpdate
+chrony
 obconf
 openssh-client
 openssh-server
@@ -79,7 +80,6 @@ powerdebug
 powertop
 procps
 psmisc
-#pulseaudio-module-bluetooth
 read-edid
 resolvconf
 rfkill
@@ -97,10 +97,8 @@ vim
 vim-tiny
 wget
 whiptail
-#wireless-tools
+wireless-tools
 wpasupplicant
-xdg-user-dirs-gtk
-xfce4-power-manager-plugins
 xinit
 xserver-xorg
 xserver-xorg-video-modesetting
@@ -113,7 +111,6 @@ cmake
 binfmt-support
 dh-make
 dh-exec
-pkg-kde-tools
 device-tree-compiler
 cpio
 dosfstools
@@ -148,28 +145,17 @@ xfce4-power-manager-plugins
 pkg-kde-tools
 lightdm-gtk-greeter
 xdg-desktop-portal
+xdg-desktop-portal-gnome
 xwayland
+wayland-utils
 libwayland-dev
 wayland-protocols
 libdrm-dev
 libfm4
-#libfm-gtk4
-software-properties-common
-#plymouth-theme-ubuntu-logo
-ubuntu-gnome-desktop
-ubuntu-gnome-wallpapers
+# libfm-gtk4
+# software-properties-common
 pipewire
 wireplumber
 pipewire-pulse
 pipewire-audio-client-libraries
 pulseaudio-utils
-linux-firmware
-oem-config-gtk
-localechooser-data
-ubiquity
-ubiquity-casper
-ubiquity-slideshow-ubuntu
-ubiquity-ubuntu-artwork
-ubiquity-frontend-gtk
-ubiquity-frontend-kde
-ubiquity-frontend-debconf

@@ -1,4 +1,4 @@
-CROSS_COMPILE=/usr/local/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-
 STARTUP_DEFS=-D__STARTUP_CLEAR_BSS -D__START=main
 INCLUDE = -I.
 CFLAGS  = -g -march=armv8-a -O1 -Wl,--build-id=none -nostdlib -fno-builtin $(INCLUDE)

@@ -14,5 +14,5 @@ ${ROOT_UUID}
 w
 y
 EOF
-dd if=../rootfs-ubuntu-oracular/linaro-esp.img of=${BOOT} bs=4096 seek=4096 conv=notrunc,fsync
-dd if=../rootfs-ubuntu-oracular/linaro-rootfs.img of=${BOOT} bs=4096 seek=135168 conv=notrunc,fsync
+dd if=../rootfs-ubuntu-plucky/linaro-esp.img of=${BOOT} bs=4096 seek=4096 conv=notrunc,fsync
+dd if=../rootfs-ubuntu-plucky/linaro-rootfs.img of=${BOOT} bs=4096 seek=135168 conv=notrunc,fsync

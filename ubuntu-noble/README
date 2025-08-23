@@ -21,16 +21,7 @@ date
 sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
-sudo vi /etc/systemd/logind.conf ( change to follows:
-HandlePowerKey=ignore
-HandleRebootKey=ignore
-HandleSuspendKey=ignore
-HandleHibernateKey=ignore
-HandleLidSwitch=ignore
-)
 sync
-sudo shutdown -h now
-Power off, power on
 glxinfo | grep OpenGL
 date
 Check if Ubuntu is running UEFI mode:
@@ -50,7 +41,7 @@ aplay -l
 pavucontrol  ( select card 1 as default )
 
 sudo add-apt-repository ppa:mozillateam/ppa
-sudo apt update
+sudo apt update; sudo apt upgrade -y;
 sudo apt install firefox-esr
 firefox-esr -> youtube.com -> search YmDNhi07_Ho
 
@@ -58,9 +49,11 @@ git clone https://github.com/yt-dlp/yt-dlp.git
 cd yt-dlp
 make
 cd ../
-~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
-mpv avemaria.mp4
-cvlc --gl=wgl --glconv=any avemaria.mp4
+\rm -f swan.mp4
+~/yt-dlp/yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best" --merge-output-format mp4 --recode-video mp4 3qrKjywjo7Q -o swan.mp4
+mpv swan.mp4
+ffplay swan.mp4
+cvlc --gl=wgl --glconv=any swan.mp4
 
 sudo rfkill list
 hciconfig hci0
