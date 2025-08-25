@@ -22,6 +22,7 @@ sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
 sync
+free
 glxinfo | grep OpenGL
 date
 Check if Ubuntu is running UEFI mode:

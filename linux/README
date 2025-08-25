@@ -1,8 +1,11 @@
 Compile mainline kernel:
 
-wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.16.tar.gz
-tar -xzf linux-6.16.tar.gz
-mv linux-6.16 linux
+# wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.16.tar.gz
+# tar -xzf linux-6.16.tar.gz
+# mv linux-6.16 linux
+wget https://git.kernel.org/torvalds/t/linux-6.17-rc2.tar.gz
+tar -xzf linux-6.17-rc2.tar.gz
+mv linux-6.17-rc2 linux
 vi ./linux/arch/arm64/configs/defconfig ( enable NVMe change to:
 CONFIG_PHY_ROCKCHIP_PCIE=y
 CONFIG_BLK_DEV_NVME=y
@@ -10,6 +13,16 @@ CONFIG_PCIE_ROCKCHIP_HOST=y
 CONFIG_SATA_AHCI=y
 CONFIG_EXT4_FS=y
 CONFIG_PCIEPORTBUS=y
+CONFIG_VIDEO_ROCKCHIP_VDEC=y
+CONFIG_VIDEO_ROCKCHIP_RGA=y
+CONFIG_V4L2_REQUEST=y
+CONFIG_MEDIA_SUPPORT=y
+CONFIG_MEDIA_CONTROLLER=y
+CONFIG_VIDEO_DEV=y
+CONFIG_V4L2_MEM2MEM_DEV=y
+CONFIG_V4L2_H264=y
+CONFIG_VIDEO_HANTRO=m
+CONFIG_VIDEO_HANTRO_ROCKCHIP=y
 )
 \rm -rf out; mkdir out;
 make kernel
