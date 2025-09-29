@@ -5,8 +5,8 @@ Parts required:
 2. Band-Pass SMA Filter.
 3. ADS-B 1090MHz PRO USB Stick.
 
-Input files: ../kernel/out/boot.img
-             ../rootfs-bookwormgpio/linaro-rootfs.img
+Input files: ../rootfs-bookworm/linaro-esp.img
+             ../rootfs-bookworm/linaro-rootfs.img
 
 Plugin sdcard to PC.
 sudo ./mksdcardimg.sh
@@ -29,10 +29,6 @@ date
 sudo apt update
 sudo apt upgrade
 sync
-sudo shutdown -h now
-Power off, power on
-Disable power saving and screen saver.
-date
 
 sudo apt install chrpath tcl-dev python3-dev python3-venv python3-setuptools python3-pip python3-pyelftools libboost-system-dev libboost-program-options-dev libboost-regex-dev libboost-filesystem-dev patchelf itcl3 tcllib tclx8.4 librtlsdr-dev libbladerf-dev libhackrf-dev liblimesuite-dev libsoapysdr-dev libusb-1.0-0-dev pkg-config libncurses5-dev lighttpd
 

@@ -8,6 +8,7 @@ import time
 import sys
 import spidev
 import smbus
+import gpiod
 
 pwm_period = 0.0
 port = "/dev/ttyS4"
@@ -19,8 +20,8 @@ DISPLAY_RGB_ADDR = 0x62
 DISPLAY_TEXT_ADDR = 0x3e
 
 spi = spidev.SpiDev()
-led = 154
-switch = 156
+# led = 154
+# switch = 156
 
 def readLine(port):
     s = ""
@@ -102,34 +103,38 @@ def pwm_duty(duty):
     dutycycle = duty * int(pwm_period)
     os.system('sudo echo ' + str(int(dutycycle)) + ' > /sys/class/pwm/pwmchip0/pwm0/duty_cycle')
 
+chip = gpiod.Chip("gpiochip4")
+
+# LED (global 154 -> offset 26) as output
+led = chip.get_line(26)
+led.request(consumer="gpio_test", type=gpiod.LINE_REQ_DIR_OUT)
+
+# Switch (global 156 -> offset 28) as input
+switch = chip.get_line(28)
+switch.request(consumer="gpio_test", type=gpiod.LINE_REQ_DIR_IN)
+
 def led_test():
-    initpin(led, 'out')
     for i in range(5):
-        setpin(led, 1)
+        led.set_value(1)
         time.sleep(0.5)
-        setpin(led, 0)
+        led.set_value(0)
         time.sleep(0.5)
-    closepin(led)
 
 def button_test():
     print ("Push button 10 times.\r\n")
-    initpin(led, 'out')
-    initpin(switch, 'in')
     old_state = 0
     current_state = 0
     i = 0
     while i < 10:
-        current_state = getpin(switch)
+        current_state = switch.get_value()
         if old_state == 0 and current_state == 1:
-            setpin(led, 1)
+            led.set_value(1)
             old_state = current_state
         elif old_state == 1 and current_state == 0:
-            setpin(led, 0)
+            led.set_value(0)
             old_state = current_state
             i += 1
         time.sleep(0.05)
-    closepin(led)
-    closepin(switch)
 
 def pwm_led_test():
     pwm_open()
@@ -358,12 +363,12 @@ font7x14 = [
 ]
 
 def ssd1306_init():
-    setpin(led, 0)
+    led.set_value(0)
     myData = [0xa8, 0x3f, 0xd3, 0x0, 0x40, 0xa0, 0xc0, 0xda, 0x2, 0x81, 0x7f, 0xa4, 0xa6, 0xd5, 0x80, 0x8d, 0x14, 0xaf]
     spi.writebytes( myData )
 
 def set_col_addr( col_start, col_end ):
-    setpin(led, 0)
+    led.set_value(0)
     D0 = 0x21
     D1 = col_start & 0x7f
     D2 = col_end & 0x7f
@@ -371,7 +376,7 @@ def set_col_addr( col_start, col_end ):
     spi.writebytes( myData )
 
 def set_page_addr( page_start, page_end ):
-    setpin(led, 0)
+    led.set_value(0)
     D0 = 0x22
     D1 = page_start & 0x3
     D2 = page_end & 0x3
@@ -379,17 +384,17 @@ def set_page_addr( page_start, page_end ):
     spi.writebytes( myData )
 
 def set_horizontal_mode():
-    setpin(led, 0)
+    led.set_value(0)
     myData = [0x20, 0x00]
     spi.writebytes( myData )
 
 def set_start_page( page ):
-    setpin(led, 0)
+    led.set_value(0)
     myData = 0xB0 | (page & 0x3)
     spi.writebytes( myData )
 
 def set_start_col( col ):
-    setpin(led, 0)
+    led.set_value(0)
     D0 = 0xf & col
     D1 = (0xf & (col >> 4)) | 0x10
     myData = [D0, D1]
@@ -398,7 +403,7 @@ def set_start_col( col ):
 def clearDisplay():
     set_col_addr( 0, 127 )
     set_page_addr( 0, 3 )
-    setpin(led, 1)
+    led.set_value(1)
     for j in range(4):
         for k in range(8):
             myData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -423,7 +428,7 @@ def oledprintf( ch ):
           else:
               set_page_addr( 2, 3 )
           
-          setpin(led, 1)
+          led.set_value(1)
           spi.writebytes( mychar )
           start_col += 7
       else:
@@ -449,7 +454,7 @@ def oledascii():
             else:
                 set_page_addr( 2, 3 )
             
-            setpin(led, 1)
+            led.set_value(1)
             spi.writebytes( mychar )
             start_col += 7
             if start_col >= 112:
@@ -459,9 +464,8 @@ def oledascii():
         clearDisplay()
 
 def ssd1306_test():
-    initpin(led, 'out')
-    setpin(led, 1)
-    spi.open(0, 0)
+    led.set_value(1)
+    spi.open(2, 0)
     spi.max_speed_hz = 5000000
     ssd1306_init()
 
@@ -470,7 +474,7 @@ def ssd1306_test():
     set_col_addr( 0, 127 )
     set_page_addr( 0, 3 )
   
-    setpin(led, 1)
+    led.set_value(1)
     for j in range(4):
         i = 0
         while i < 128:
@@ -485,7 +489,6 @@ def ssd1306_test():
     clearDisplay()
     oledprintf( "This is a test !\nIt works !\n" )
     spi.close()
-    closepin(led)
 
 item = ""
 while item != 'q':

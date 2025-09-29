@@ -52,17 +52,15 @@ Steps to build rockpi4b sdcard image:
 
 4. cd ~/build-rockpi4b/kernel  ( Compile vendor's kernel )
    git clone https://github.com/radxa/kernel --depth=1 -b linux-5.10.y
-   vi ./kernel/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change
-   i2c7 uart4 spi2 pwm1 )
    \rm -rf out; mkdir out;
    make kernel
 
    The result is in ./out/boot.img
 
 5. cd ~/build-rockpi4b/linux  ( Compile mainline kernel )
-   wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-6.16.tar.gz
-   tar -xzf linux-6.16.tar.gz
-   mv linux-6.16 linux
+   wget https://git.kernel.org/torvalds/t/linux-6.17-rc7.tar.gz
+   tar -xzf linux-6.17-rc7.tar.gz
+   mv linux-6.17-rc7 linux
    vi ./linux/arch/arm64/configs/defconfig ( enable NVMe change to:
    CONFIG_PHY_ROCKCHIP_PCIE=y
    CONFIG_BLK_DEV_NVME=y
@@ -70,72 +68,77 @@ Steps to build rockpi4b sdcard image:
    CONFIG_SATA_AHCI=y
    CONFIG_EXT4_FS=y
    CONFIG_PCIEPORTBUS=y
+   CONFIG_VIDEO_ROCKCHIP_VDEC=y
+   CONFIG_VIDEO_ROCKCHIP_RGA=y
+   CONFIG_MEDIA_SUPPORT=y
+   CONFIG_MEDIA_CONTROLLER=y
+   CONFIG_VIDEO_DEV=y
+   CONFIG_V4L2_MEM2MEM_DEV=y
+   CONFIG_V4L2_H264=y
+   CONFIG_VIDEO_HANTRO=m
+   CONFIG_VIDEO_HANTRO_ROCKCHIP=y
+   CONFIG_SPI_SPIDEV=y
    )
+   vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change
+   i2c7 uart4 spi2 pwm1 )
    \rm -rf out; mkdir out;
    make kernel
-
-   The result is in ./out/boot.img
 
 6. cd ~/build-rockpi4b/rootfs-bookworm  ( Compile debian bookworm rootfs )
    make rootfs
    The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
-7. cd ~/build-rockpi4b/rootfs-bookwormgpio  ( Compile debian bookworm rootfs )
-   make rootfs
-   The result is in ./linaro-rootfs.img
-   make clean
-
-8. cd ~/build-rockpi4b/rootfs-trixie  ( Compile debian trixie rootfs )
+7. cd ~/build-rockpi4b/rootfs-trixie  ( Compile debian trixie rootfs )
    make rootfs
    The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
 
-9. cd ~/build-rockpi4b/rootfs-ubuntu-noble  ( Compile ubuntu-noble rootfs )
+8. cd ~/build-rockpi4b/rootfs-ubuntu-noble  ( Compile ubuntu-noble rootfs )
    make rootfs
    The results are in ./linaro-rootfs.img linaro-esp.img
    make clean
-10. cd ~/build-rockpi4b/rootfs-ubuntu-plucky  ( Compile ubuntu-plucky rootfs )
-    make rootfs
-    The results are in ./linaro-rootfs.img linaro-esp.img
-    make clean
+9. cd ~/build-rockpi4b/rootfs-ubuntu-plucky  ( Compile ubuntu-plucky rootfs )
+   make rootfs
+   The results are in ./linaro-rootfs.img linaro-esp.img
+   make clean
 
-11. cd ~/build-rockpi4b/bookworm-gnome  ( Build debian bookworm gnome-desktop image )
+10. cd ~/build-rockpi4b/bookworm-gnome  ( Build debian bookworm gnome-desktop image )
     Plugin NVME-SSD/sdcard/emmc to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc from PC. 
 
-12. cd ~/build-rockpi4b/trixie-gnome  ( Build debian trixie gnome-desktop image )
+11. cd ~/build-rockpi4b/trixie-gnome  ( Build debian trixie gnome-desktop image )
     Plugin NVME-SSD/sdcard/emmc to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc from PC.
 
-13. cd ~/build-rockpi4b/ubuntu-noble  ( Build ubuntu-noble image )
+12. cd ~/build-rockpi4b/ubuntu-noble  ( Build ubuntu-noble image )
     Plugin NVME-SSD/sdcard/emmc to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc from PC.
 
-14. cd ~/build-rockpi4b/ubuntu-plucky  ( Build ubuntu-plucky image )
+13. cd ~/build-rockpi4b/ubuntu-plucky  ( Build ubuntu-plucky image )
     Plugin NVME-SSD/sdcard/emmc to PC.
     sudo ./mksdcardimg.sh
     Eject NVME-SSD/sdcard/emmc from PC.
 
-15. cd ~/build-rockpi4b/yocto           ( Build yocto image )
+14. cd ~/build-rockpi4b/yocto           ( Build yocto image )
 
-16. cd ~/build-rockpi4b/buildroot       ( Build buildroot image )
+15. cd ~/build-rockpi4b/buildroot       ( Build buildroot image )
 
-17. cd ~/build-rockpi4b/android         ( Build android image )
+16. cd ~/build-rockpi4b/android         ( Build android image )
 
-18. cd ~/build-rockpi4b/bookworm-gpio   ( gpio and pn532nfc tests in bookworm )
+17. cd ~/build-rockpi4b/bookworm-gpio   ( gpio and pn532nfc tests in bookworm )
 
-19. cd ~/build-rockpi4b/bookworm-flightaware  ( flightaware in bookworm ) 
+18. cd ~/build-rockpi4b/bookworm-flightaware  ( flightaware in bookworm ) 
 
-20. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
+19. cd ~/build-rockpi4b/baremetal-gpio  ( gpio test in baremetal )
 
-21. cd ~/build-rockpi4b/fedora          ( Build fedora image )
+20. cd ~/build-rockpi4b/fedora          ( Build fedora image )
 
-22. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
+21. cd ~/build-rockpi4b/bookworm-uefi   ( Build bookworm-uefi image )
 
-23. cd ~/build-rockpi4b/tixie-uefi      ( Build tixie-uefi image )
+22. cd ~/build-rockpi4b/tixie-uefi      ( Build tixie-uefi image )
 
-24. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )
+23. cd ~/build-rockpi4b/ubuntu-uefi     ( Build ubuntu-uefi image )

@@ -20,7 +20,7 @@ prebuild:
 	--apt-recommends false \
 	--apt-secure false \
 	--architectures arm64 \
-	--archive-areas 'main contrib non-free-firmware' \
+	--archive-areas 'main non-free-firmware' \
 	--backports false \
 	--binary-filesystem ext4 \
 	--binary-images tar \

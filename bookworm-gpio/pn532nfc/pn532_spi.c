@@ -52,7 +52,7 @@ int spiSetup( void )
     uint32_t speed = 1000000;
     uint8_t bits = 8;
 
-    if ((spi = open( "/dev/spidev0.0", O_RDWR )) < 0) {
+    if ((spi = open( "/dev/spidev2.0", O_RDWR )) < 0) {
         printf("Failed to open the bus.");
         exit( 1 );
     }
