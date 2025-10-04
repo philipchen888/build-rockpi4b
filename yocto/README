@@ -27,13 +27,13 @@ Build yocto sdcard image for Radxa rockpi4b:
    sudo mount /dev/sda1 /mnt
    sudo \rm -rf /mnt/boot/*
    sudo \rm -rf /mnt/lib/modules/*
-   sudo cp -r ../../../kernel/kernel/tmp/boot/* /mnt/boot
+   sudo cp -r ../../../linux/linux/tmp/boot/* /mnt/boot
    sudo mkdir /mnt/boot/extlinux
-   sudo cp ../../../patches/extlinux.conf /mnt/boot/extlinux/
-   sudo vi /mnt/boot/extlinux/extlinux.conf ( change to PARTUUID=7bdde4a8-88 )
-   sudo cp -r ../../../kernel/kernel/tmp/lib/modules/* /mnt/lib/modules
+   sudo cp ../../patches/extlinux.conf /mnt/boot/extlinux/
+   sudo vi /mnt/boot/extlinux/extlinux.conf ( change to PARTUUID=39df8f38-94 )
+   sudo cp -r ../../../linux/linux/tmp/lib/modules/* /mnt/lib/modules
    sudo vi /mnt/etc/network/interfaces ( delete everything after iface lo inet loopback )
-   sudo vi /mnt/etc/xdg/weston/weston.ini ( add
+   sudo vi /mnt/etc/xdg/weston/weston.ini ( delete everything, add
    [core]
    xwayland=true
    idle-time=0
@@ -52,13 +52,13 @@ Build yocto sdcard image for Radxa rockpi4b:
 
    \rm -rf ./tmp/work
 
-Plugin sdcard and ethernet cable to SBC.
+Plugin sdcard to SBC.
 
 uname -a
 su -
 passwd
 adduser linaro
-usermod -aG sudo linaro
+usermod -aG adm,sudo,video linaro
 sync
 reboot
 
@@ -78,12 +78,14 @@ ctl.!default {
 type hw
 card 1
 }
-
+)
 sync
 reboot
 
+ssh root@192.168.86.250
+whoami
 glmark2-es2-wayland
-
+aplay -l
 aplay /home/linaro/yoursong.wav
 mpv --no-video /home/linaro/yoursong.mp3
 mpv /home/linaro/yourvideo.mp4

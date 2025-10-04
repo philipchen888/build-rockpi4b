@@ -81,7 +81,7 @@ Steps to build rockpi4b sdcard image:
    )
    vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change
    i2c7 uart4 spi2 pwm1 )
-   \rm -rf out; mkdir out;
+
    make kernel
 
 6. cd ~/build-rockpi4b/rootfs-bookworm  ( Compile debian bookworm rootfs )

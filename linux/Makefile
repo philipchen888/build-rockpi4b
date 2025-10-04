@@ -1,5 +1,3 @@
-export OUT=$(PWD)/out
-export BOOT=$(OUT)/boot.img
 export ARCH=arm64
 export CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-
 export BOOT_UUID=95E46EA5

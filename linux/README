@@ -47,5 +47,4 @@ vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( add
 };
 )
 
-\rm -rf out; mkdir out;
 make kernel
