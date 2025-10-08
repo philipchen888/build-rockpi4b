@@ -7,31 +7,26 @@ Build yocto sdcard image for Radxa rockpi4b:
    git clone git://git.openembedded.org/meta-openembedded.git --depth=1 -b master
    git clone https://github.com/jonmason/meta-arm.git --depth=1 -b master
    git clone https://git.yoctoproject.org/meta-rockchip.git --depth=1 -b master
+   vi ./poky/meta-rockchip/recipes-kernel/linux/linux-yocto_%.bbappend ( add
+   SRC_URI:append:rockchip = " file://hdmi-audio.cfg"
+   )
    source oe-init-build-env
    cd ../../
    make apply_patches
 
    cd poky; source oe-init-build-env;
    bitbake -s
-   bitbake -c cleansstate u-boot linux-yocto core-image-weston
+   bitbake -c cleansstate u-boot linux-yocto core-image-weston clang
    bitbake -k u-boot
    bitbake -k linux-yocto
-   bitbake -k core-image-weston
+   bitbake -k clang core-image-weston
 
    The result is in ./tmp/deploy/images/rock-pi-4b/core-image-weston-rock-pi-4b.rootfs.wic
 
    Plugin sdcard to PC.
    sudo dd if=./tmp/deploy/images/rock-pi-4b/core-image-weston-rock-pi-4b.rootfs.wic of=/dev/sda bs=4096 conv=notrunc,fsync
 
-   sudo blkid /dev/sda1
    sudo mount /dev/sda1 /mnt
-   sudo \rm -rf /mnt/boot/*
-   sudo \rm -rf /mnt/lib/modules/*
-   sudo cp -r ../../../linux/linux/tmp/boot/* /mnt/boot
-   sudo mkdir /mnt/boot/extlinux
-   sudo cp ../../patches/extlinux.conf /mnt/boot/extlinux/
-   sudo vi /mnt/boot/extlinux/extlinux.conf ( change to PARTUUID=39df8f38-94 )
-   sudo cp -r ../../../linux/linux/tmp/lib/modules/* /mnt/lib/modules
    sudo vi /mnt/etc/network/interfaces ( delete everything after iface lo inet loopback )
    sudo vi /mnt/etc/xdg/weston/weston.ini ( delete everything, add
    [core]
@@ -52,7 +47,7 @@ Build yocto sdcard image for Radxa rockpi4b:
 
    \rm -rf ./tmp/work
 
-Plugin sdcard to SBC.
+Plugin sdcard and ethernet cable to rockpi4b.
 
 uname -a
 su -
@@ -82,7 +77,10 @@ card 1
 sync
 reboot
 
-ssh root@192.168.86.250
+glmark2-es2-wayland
+
+In weston desktop:
+su -
 whoami
 glmark2-es2-wayland
 aplay -l
