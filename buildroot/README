@@ -3,45 +3,42 @@ Build buildroot sdcard image for Radxa rockpi4b:
 Input files: ../uboot/out/idbloader.img
              ../uboot/out/uboot.img
              ../uboot/out/trust.img
-             ../linux/linux/arch/arm64/boot/Image
-             ../linux/linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dtb 
-             ../linux/rk3399.conf
-             ../linux/linux/tmp/lib/modules
 
-   git clone git://git.buildroot.net/buildroot
-   cp ./patches/rockpi4_defconfig ./buildroot/configs
-   \rm -rf ./buildroot/board/radxa/rockpi-4
-   cp -r ./patches/rockpi-4 ./buildroot/board/radxa
-   cd buildroot
-   \rm .config
-   make clean
-   make rockpi4_defconfig
-   make menuconfig        ( optional to add packages )
-   make
+wget https://buildroot.org/downloads/buildroot-2025.08.tar.gz
+tar -xzf buildroot-2025.08.tar.gz
+mv buildroot-2025.08 buildroot
+vi ./buildroot/configs/rock4se_defconfig ( delete UBOOT, KERNEL, BR2_DOWNLOAD_FORCE_CHECK_HASHES=y, append ./patches/rockpi4_defconfig )
+cp ./patches/rockpi-4/* ./buildroot/board/radxa/rock4se/
+cd buildroot
+\rm -rf .config output
+make clean
+make rock4se_defconfig
+make linux
+make
 
-   The result is in ./output/images/sdcard.img
+The result is in ./output/images/sdcard.img
 
-   sudo dd if=./output/images/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+sudo dd if=./output/images/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
 
-   Eject sdcard. Plugin sdcard again.
-   sudo vi /media/$USER/rootfs/etc/network/interfaces ( delete everything after iface lo inet loopback)
-   sudo vi /media/$USER/rootfs/etc/vsftpd.conf ( anonymous_enable=NO, local_enable=YES, write_enable=YES )
-   sudo cp -r ../../linux/linux/tmp/lib/modules /media/$USER/rootfs/lib
-   sudo cp -r ../patches/brcm /media/$USER/rootfs/lib/firmware/
-   sync
-   Eject sdcard.
+sudo mount /dev/sda4 /mnt
+sudo vi /mnt/etc/network/interfaces ( delete everything after iface lo inet loopback)
+sudo vi /mnt/etc/vsftpd.conf ( anonymous_enable=NO, local_enable=YES, write_enable=YES )
+sudo mkdir -p /mnt/lib/firmware/brcm/
+sudo cp ../patches/brcm/* /mnt/lib/firmware/brcm/
+sync; sudo umount /mnt;
+Eject sdcard.
 
-plugin sdcard to SBC
+Plugin sdcard to rockpi4b.
 login:
 username: root
 password: linaro
 
-ifconfig wlan0 up
 wpa_passphrase your_SSID your_passphrase > /etc/ssid.conf
 wpa_supplicant -B -i wlan0 -c /etc/ssid.conf
 dhcpcd wlan0
 ifconfig
 
+uname -a
 adduser linaro
 
 date
@@ -56,10 +53,13 @@ type hw
 card 0
 }
 
+alsactl -F restore
+
 aplay /home/linaro/yoursong.wav
 mpg123 -a hw:0,0 /home/linaro/yoursong.mp3
 mpv --no-video /home/linaro/yoursong.mp3
 
-hciconfig hci0 up
+bluetoothctl list
+hciconfig hci0
 hciconfig -a
 hcitool dev
