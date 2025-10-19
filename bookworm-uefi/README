@@ -4,13 +4,13 @@ There is no edk2-rk3399, so we use fedora-40 as edk2-rk3399 to install debian-12
 
 cd ~/Downloads
 wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/40/Workstation/aarch64/images/Fedora-Workstation-40-1.14.aarch64.raw.xz
-wget wget https://cdimage.debian.org/debian-cd/current/arm64/iso-cd/debian-12.11.0-arm64-netinst.iso
+wget https://mirror.us.mirhosting.net/debian-cd/12.11.0/arm64/iso-cd/debian-12.11.0-arm64-netinst.iso
 
-wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/20230607+deb12u11/images/netboot/debian-installer/arm64/linux
-wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/20230607+deb12u11/images/netboot/debian-installer/arm64/initrd.gz
+wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/linux
+wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
 
 cd ~/build-rockpi4b/bookworm-uefi
-Plugin NVMe-SSD to PC. 
+Plugin usb3 stick to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
@@ -21,7 +21,7 @@ sudo resize2fs /dev/sda2
 sudo mount /dev/sda2 /mnt
 cd /mnt
 sudo \rm -rf efi dtb-* init* lost+found symvers* System* vmlinuz* .vmlinuz* config* dtb
-sudo 7z x ~/Downloads/debian-12.11.0-arm64-netinst.iso
+sudo 7z x ~/Downloads/debian-12.11.0-arm64-netinst.iso; sync;
 sudo cp ~/Downloads/linux .
 sudo cp ~/Downloads/initrd.gz .
 sudo chmod 755 loader/entries
@@ -40,50 +40,50 @@ sudo \rm -rf b* c* f* o* r* s*
 cd
 sync
 sudo umount /mnt
+Eject usb3 stick from PC.
+
+Plugin NVMe-SSD to PC.
+sudo ./mknvme.sh
+sudo mkfs.ext4 /dev/sda1
+sudo fdisk -l /dev/sda
 Eject NVMe-SSD from PC.
 
-Plugin NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin usb3 stick and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
 
 loading missing firmware? No
 Set User name: linaro
-Partition ( Enter, Enter, Enter, Yes )
+Partition ( Enter, Enter, select nvme, create empty yes, select free, auto partion, all, finish, Yes )
 Select debian desktop and gnome in addition to ssh and standard system utilities.
 
 Force GRUB to install to the EFI ( Yes )
 Update NVMRAM to boot Debian ( Yes )
 Stuck at Unable to install GRUB in dummy.
-Continue without bootloader. Power off rockpi4b when installation completed.
+Continue without bootloader. Power off rockpi4b when installation completed. Remove usb3 stick.
 
 Plugin NVMe-SSD to PC.
 sudo fdisk -l /dev/sda
-sudo e2label /dev/sda3 rootfs
-sudo parted /dev/sda ( print, rm 2, print, quit )
+sudo e2label /dev/sda2 rootfs
 sudo blkid /dev/sda1 ( write down UUID )
-sudo blkid /dev/sda3 ( write down UUID )
-sudo mount /dev/sda3 /mnt
+sudo blkid /dev/sda2 ( write down UUID )
+sudo mount /dev/sda2 /mnt
 sudo touch /mnt/boot/grub/grub.cfg
 sudo vi /mnt/boot/grub/grub.cfg ( add
 set timeout=5
 set default="Boot UUID"
 set menu_color_normal=white/black
 set menu_color_highlight=white/green
-set root=(nvme0n1,gpt3)
+set root=(nvme0n1,gpt2)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 177c2045-92e0-49aa-9be2-54bab91bc326
-    echo    'Loading Linux 6.1.0-38-arm64 ...'
-    linux /boot/vmlinuz-6.1.0-38-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' 5a38d3d9-2b4b-4c81-b538-bb54b9f60fe1
+    echo    'Loading Linux 6.1.0-40-arm64 ...'
+    linux /boot/vmlinuz-6.1.0-40-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
-    initrd /boot/initrd.img-6.1.0-38-arm64
+    initrd /boot/initrd.img-6.1.0-40-arm64
 }
 )
 sudo vi /mnt/etc/fstab ( change UUID for /boot/efi )
 cd
-sync
-sudo umount /mnt
-
-sudo mount /dev/sda1 /mnt
-sudo \rm -rf /mnt/EFI/fedora
 sync
 sudo umount /mnt
 Eject NVMe-SSD from PC.
@@ -96,10 +96,10 @@ sync
 shutdown -h now
 
 Plugin NVMe-SSD to PC.
-sudo mount /dev/sda3 /mnt
+sudo mount /dev/sda2 /mnt
 ls -la /mnt/lib/firmware
 sudo mkdir /mnt/lib/firmware/brcm
-sudo cp ~/build-rockpi4b/bookworm-uefi/packages/* /mnt/lib/firmware/brcm
+sudo cp ./packages/* /mnt/lib/firmware/brcm
 sync
 sudo umount /mnt
 Eject NVMe-SSD from PC.
