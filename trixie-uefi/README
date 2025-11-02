@@ -10,7 +10,7 @@ wget http://http.us.debian.org/debian/dists/trixie/main/installer-arm64/current/
 wget http://http.us.debian.org/debian/dists/trixie/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
 
 cd ~/build-rockpi4b/trixie-uefi
-Plugin usb3 stick to PC. 
+Plugin USB3 1TB SSD to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
@@ -32,52 +32,71 @@ initrd /initrd.gz
 delete options
 )
 cd
-sync
-sudo umount /mnt
+sync; sudo umount /mnt;
 sudo mount /dev/sda1 /mnt
 cd /mnt
 sudo \rm -rf b* c* f* o* r* s*
 cd
-sync
-sudo umount /mnt
-Eject usb3 stick from PC.
+sync; sudo umount /mnt;
+Eject USB3 1TB SSD from PC.
 
 Plugin NVMe-SSD to PC.
+cd ~/build-rockpi4b/trixie-uefi
 sudo ./mknvme.sh
 sudo mkfs.ext4 /dev/sda1
 sudo fdisk -l /dev/sda
 Eject NVMe-SSD from PC.
 
-Plugin usb3 stick and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin USB3 1TB SSD and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
 
 loading missing firmware? No
 Set User name: linaro
-Partition ( Enter, Manual, select nvme, create empty yes, select free, auto partion, all, finish, Yes )
+Partition ( Manual, select nvme, create empty yes, select free, auto partion, all, finish, Yes )
 Select debian desktop and gnome in addition to ssh and standard system utilities.
 
 Force GRUB to install to the EFI ( Yes )
 Update NVMRAM to boot Debian ( Yes )
-Continue. Continue.
-Continue to reboot. Power off rockpi4b when installation completed. Remove usb3 stick.
+Power off rockpi4b when installation completed. Remove USB3 1TB SSD and ethernet cable.
 
-Disable power saving and screen saver.
+Plugin NVMe-SSD to PC.
+sudo fdisk -l /dev/sda
+sudo e2label /dev/sda3 rootfs
+sudo blkid /dev/sda2 ( write down UUID )
+sudo blkid /dev/sda3 ( write down UUID )
+sudo mount /dev/sda3 /mnt
+ls -la /mnt/boot
+sudo touch /mnt/boot/grub/grub.cfg
+sudo vi /mnt/boot/grub/grub.cfg ( add
+set timeout=5
+set default="Boot UUID"
+set menu_color_normal=white/black
+set menu_color_highlight=white/green
+set root=(nvme0n1,gpt3)
+
+menuentry "Boot UUID" {
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 247173a4-4e0c-4eb4-9e32-1fb7b113cfe3
+    echo    'Loading Linux 6.12.48+deb13-arm64 ...'
+    linux /boot/vmlinuz-6.12.48+deb13-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
+    echo    'Loading initial ramdisk ...'
+    initrd /boot/initrd.img-6.12.48+deb13-arm64
+}
+)
+sudo vi /mnt/etc/fstab ( change UUID for /boot/efi )
+sudo mkdir /mnt/lib/firmware/brcm
+sudo cp ./packages/* /mnt/lib/firmware/brcm
+sync; sudo umount /mnt;
+Eject NVMe-SSD from PC.
+
+Plugin NVMe-SSD to rockpi4b. Power on rockpi4b.
+Setup wifi. Disable power saving, auto suspend and screen saver.
 su -
 usermod -aG adm,sudo,video linaro
 sync
-shutdown -h now
+reboot
 
-Plugin NVMe-SSD to PC.
-sudo mount /dev/sda3 /mnt
-ls -la /mnt/lib/firmware
-sudo mkdir /mnt/lib/firmware/brcm
-sudo cp ./packages/* /mnt/lib/firmware/brcm
-sync
-sudo umount /mnt
-Eject NVMe-SSD from PC.
-
-Plugin NVMe-SSD to rockpi4b. Unplug ethernet cable from rockpi4b. Power on rockpi4b.
-Setup wifi.
 sudo apt install net-tools openssh-server pulseaudio-utils
+sudo systemctl start ssh.service
+sudo systemctl enable ssh.service
 sudo ifconfig
 df .
 uname -a
@@ -86,11 +105,11 @@ date
 sudo apt update
 sudo apt upgrade
 sync
-
+free
 Check if Debian is running UEFI mode:
 ls /sys/firmware/efi
 
-sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pandoc pavucontrol zip rfkill vlc vlc-plugin-video-output
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pandoc pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
 
 speedtest-cli --secure
 
@@ -101,13 +120,16 @@ pavucontrol  ( select hdmi as default )
 
 firefox -> youtube -> search YmDNhi07_Ho
 
+Do follows on PC, then ftp swan.mp4 to rockpi4b.
+(
 git clone https://github.com/yt-dlp/yt-dlp.git
 cd yt-dlp
 make
 cd ../
-\rm -f swan.mp4
-~/yt-dlp/yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best" --merge-output-format mp4 --recode-video mp4 3qrKjywjo7Q -o swan.mp4
-mpv swan.mp4
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4][protocol=https]+bestaudio[ext=m4a][protocol=https]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -c:v libx264 -b:v 2M -c:a copy"
+)
+
+mpv --hwdec=auto-copy swan.mp4
 ffplay swan.mp4
 cvlc --gl=wgl --glconv=any swan.mp4
 

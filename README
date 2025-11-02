@@ -7,7 +7,7 @@ Parts needed:
 4. Host PC with ubuntu 24.
 5. M.2 NVMe SSD enclosure.
 6. EMMC module.
-7. USB2 SATA SSD
+7. USB3 1TB SSD.
 
 Note: Compile ubuntu-noble and ubuntu-oracular using lb version 3.0~a57-1.
       Compile debian using lb version 20230502.

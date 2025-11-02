@@ -5,43 +5,43 @@ Download Ubuntu iso.
 -----------------------------------------------------------
 
 cd ~/Downloads
-wget https://cdimage.ubuntu.com/releases/plucky/release/ubuntu-25.04-latest-desktop-arm64.iso
-wget https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.3-desktop-arm64.iso
+wget https://cdimage.ubuntu.com/releases/25.10/release/ubuntu-25.10-desktop-arm64.iso
 
 cd ~/build-rockpi4b/ubuntu-uefi
-Plugin usb3 stick to PC.
-sudo ./mksdcard.sh
+Plugin USB3 1TB SSD to PC.
+sudo ./mkusb3stick.sh
 sudo mkfs.vfat /dev/sda1
 sudo fdisk -l /dev/sda
 sudo mount /dev/sda1 /mnt
-sudo 7z x ~/Downloads/ubuntu-25.04-latest-desktop-arm64.iso -o/mnt && sync && sudo umount /mnt
-Eject usb3 stick from PC.
+sudo 7z x ~/Downloads/ubuntu-25.10-desktop-arm64.iso -o/mnt && sync && sudo umount /mnt
+Eject USB3 1TB SSD from PC.
 
-Plugin NVMe-SSD to PC.
+Plugin NVMe to PC.
 sudo ./mknvme.sh
 sudo mkfs.ext4 /dev/sda1
 sudo fdisk -l /dev/sda
-Eject NVMe-SSD from PC.
+Eject NVMe from PC.
 
 ------------------------------------------------------------------------
-Install ubuntu from usb3 stick ubuntu iso to empty NVMe-SSD.
-NOTE: To minimize EMI interference, put usb3 stick to rockpi4b bottom USB3 socket,
-      Put keyboard mouse to rockpi4b top USB2 socket with USB2 extention cable.
+Install ubuntu from USB3 1TB SSD ubuntu iso to empty NVMe.
+NOTE: To minimize EMI interference, put USB3 1TB SSD to rockpi4b bottom USB3 socket,
+      Put keyboard mouse to rockpi4b bottom USB2 socket with USB2 extention cable.
 ------------------------------------------------------------------------
 
-Plugin usb3 stick and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin NVMe, USB3 1TB SSD and ethernet cable to rockpi4b. Power on rockpi4b.
 
 Double click Install Ubuntu LTS icon.
 Erase disk and install Ubuntu.
 Click Install now.
-Contine till finished. Restart. Remove usb3 stick from rockpi4b.
+Contine till finished. Restart. Remove USB3 1TB SSD from rockpi4b.
 
-Plugin NVMe-SSD to PC.
+Plugin NVMe to PC.
 sudo fdisk -l /dev/sda
 sudo e2label /dev/sda2 rootfs
 sudo blkid /dev/sda1 ( write down UUID )
 sudo blkid /dev/sda2 ( write down UUID )
 sudo mount /dev/sda2 /mnt
+ls -la /mnt/boot
 sudo touch /mnt/boot/grub/grub.cfg
 sudo vi /mnt/boot/grub/grub.cfg ( delete everything, add
 set timeout=5
@@ -51,19 +51,20 @@ set menu_color_highlight=white/green
 set root=(nvme0n1,gpt2)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' f982c9ea-37c2-47fe-b1f1-eae807358602
-    echo    'Loading Linux 6.14.0-33-generic ...'
-    linux /boot/vmlinuz-6.14.0-33-generic root=LABEL=rootfs rootwait rw rootdelay=10
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' 57ee45c3-3f21-4bc4-b78a-dcb9ae77fb88
+    echo    'Loading Linux 6.17.0-6-generic ...'
+    linux /boot/vmlinuz-6.17.0-6-generic root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
-    initrd /boot/initrd.img-6.14.0-33-generic
+    initrd /boot/initrd.img-6.17.0-6-generic
 }
 )
-cd
-sync
-sudo umount /mnt
-Eject NVMe-SSD from PC.
+sudo cp ./packages/* /mnt//lib/firmware/brcm
+sync; sudo umount /mnt;
+Eject NVMe from PC.
 
-Disable power saving and screen saver.
+Plugin NVMe to rockpi4b. Remove ethernet cable from rockpi4b. Power on rockpi4b.
+
+Setup wifi. Disable power saving, auto suspend and screen saver.
 sudo apt install net-tools openssh-server pulseaudio-utils
 sudo ifconfig
 df .
@@ -80,46 +81,25 @@ ls /sys/firmware/efi
 
 sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools pandoc pavucontrol zip rfkill vsftpd vlc vlc-plugin-video-output
 
-Install wifi bluetooth driver:
-sudo vi /etc/vsftpd.conf  ( anonymous_enable=NO local_enable=YES write_enable=YES )
-sudo systemctl restart vsftpd
-Ftp ~/build-rockpi4b/ubuntu-uefi/packages/* to /lib/firmware/brcm
-sync
-sudo shutdown -h now
+speedtest-cli --secure
 
-Remove ethernet cable from rockpi4b. Power on rockpi4b.
-Setup wifi.
-sudo ifconfig
-
-speedtest-cli
 glmark2-es2-wayland
 
 aplay -l
 pavucontrol  ( select hdmi as default )
-sudo vi /etc/asound.conf ( add
-pcm.!default {
-type hw
-card 0
-}
-ctl.!default {
-type hw
-card 0
-}
-)
-sudo alsactl -F restore
-sync
-sudo shutdow -h now
 
-Power on rockpi4b.
 firefox -> youtube -> search YmDNhi07_Ho
 
+Do follows on PC, then ftp swan.mp4 to rockpi4b.
+(
 git clone https://github.com/yt-dlp/yt-dlp.git
 cd yt-dlp
 make
 cd ../
-\rm -f swan.mp4
-~/yt-dlp/yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best" --merge-output-format mp4 --recode-video mp4 3qrKjywjo7Q -o swan.mp4
-mpv swan.mp4
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4][protocol=https]+bestaudio[ext=m4a][protocol=https]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -c:v libx264 -b:v 2M -c:a copy"
+)
+
+mpv --hwdec=auto-copy swan.mp4
 ffplay swan.mp4
 cvlc --gl=wgl --glconv=any swan.mp4
 

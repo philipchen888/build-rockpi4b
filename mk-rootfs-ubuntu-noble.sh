@@ -102,7 +102,7 @@ chmod +x /etc/rc.local
 
 cp /packages/rkwifibt/brcmfmac43456-sdio.bin /lib/firmware/brcm/brcmfmac43456-sdio.radxa,rockpi4b.bin
 cp /packages/rkwifibt/brcmfmac43456-sdio.radxa,rockpi4b.txt /lib/firmware/brcm/
-cp /packages/rkwifibt/BCM4345C5.hcd /lib/firmware/brcm/
+cp /packages/rkwifibt/BCM4345C5* /lib/firmware/brcm/
 apt-get install -f -y
 
 # Create the linaro user account
