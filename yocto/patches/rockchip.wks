@@ -26,6 +26,6 @@
 # part reserved2 --offset 8192s  --fixed-size 4096K --fstype=none --part-name reserved2
 # part loader2   --offset 16384s --fixed-size 4096K --fstype=none --part-name loader2   --source rawcopy --sourceparams="file=u-boot.${UBOOT_SUFFIX}"
 # part atf       --offset 24576s --fixed-size 4096K --fstype=none --part-name atf
-part /         --label rootfsA --active           --fstype=ext4 --part-name rootfsA   --source rootfs  --part-type ${ROOT_DPS}
+part /  --offset 32768s --fixed-size 5242880K   --label rootfsA --active  --fstype=ext4 --part-name rootfsA   --source rootfs  --part-type ${ROOT_DPS}
 
 bootloader --ptable gpt
