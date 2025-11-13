@@ -4,9 +4,9 @@ Input files: ../uboot/out/idbloader.img
              ../uboot/out/uboot.img
              ../uboot/out/trust.img
 
-wget https://buildroot.org/downloads/buildroot-2025.08.tar.gz
-tar -xzf buildroot-2025.08.tar.gz
-mv buildroot-2025.08 buildroot
+wget https://buildroot.org/downloads/buildroot-2025.08.1.tar.gz
+tar -xzf buildroot-2025.08.1.tar.gz
+mv buildroot-2025.08.1 buildroot
 vi ./buildroot/configs/rock4se_defconfig ( delete UBOOT, KERNEL, BR2_DOWNLOAD_FORCE_CHECK_HASHES=y, append ./patches/rockpi4_defconfig )
 cp ./patches/rockpi-4/* ./buildroot/board/radxa/rock4se/
 cd buildroot
@@ -52,12 +52,12 @@ ctl.!default {
 type hw
 card 0
 }
-
+)
 alsactl -F restore
 
 aplay /home/linaro/yoursong.wav
 mpg123 -a hw:0,0 /home/linaro/yoursong.mp3
-mpv --no-video /home/linaro/yoursong.mp3
+mpv /home/linaro/yoursong.mp3
 
 bluetoothctl list
 hciconfig hci0
