@@ -10,7 +10,7 @@
 import sys
 
 if sys.argv[1] == "i2c":
-    sys.exit( 0 )
+    from pn532_i2c import *
 else:
     from pn532_spi import *
 

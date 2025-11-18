@@ -9,7 +9,11 @@
 #ifndef __PN532_H__
 #define __PN532_H__
 
+#ifdef I2C
+#include "pn532_i2c.h"
+#else
 #include "pn532_spi.h"
+#endif
 
 #define PN532_PREAMBLE                (0x00)
 #define PN532_STARTCODE1              (0x00)
