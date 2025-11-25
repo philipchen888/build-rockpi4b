@@ -1,6 +1,6 @@
 Build bookworm-uefi sdcard image for rockpi4b:
 
-There is no edk2-rk3399, so we use fedora-40 as edk2-rk3399 to install debian-12.11.0-arm64-netinst.iso to rockpi4b.
+# There is no edk2-rk3399, so we use fedora-40 as edk2-rk3399 to install debian-12.11.0-arm64-netinst.iso to rockpi4b.
 
 cd ~/Downloads
 wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/40/Workstation/aarch64/images/Fedora-Workstation-40-1.14.aarch64.raw.xz
@@ -10,10 +10,11 @@ wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/curren
 wget http://http.us.debian.org/debian/dists/bookworm/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
 
 cd ~/build-rockpi4b/bookworm-uefi
-Plugin USB3 1TB SSD to PC. 
+Plugin NVMe-SSD to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
+sudo mkfs.ext4 /dev/sda3
 sudo fdisk -l /dev/sda
 xzcat ~/Downloads/Fedora-Workstation-40-1.14.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 count=415744 conv=notrunc,fsync
 sudo e2fsck -f /dev/sda2
@@ -38,32 +39,28 @@ cd /mnt
 sudo \rm -rf b* c* f* o* r* s*
 cd
 sync; sudo umount /mnt;
-Eject USB3 1TB SSD from PC.
-
-Plugin NVMe-SSD to PC.
-sudo ./mknvme.sh
-sudo mkfs.ext4 /dev/sda1
-sudo fdisk -l /dev/sda
 Eject NVMe-SSD from PC.
 
-Plugin USB3 1TB SSD and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin NVMe-SSD and ethernet cable to rockpi4b. Power on rockpi4b.
 
 loading missing firmware? No
 Set User name: linaro
-Partition ( Manual, select nvme, create empty yes, select free, auto partion, all, finish, Yes )
+Partition ( Manual, select partion 3, erase, select free, auto partion, all, finish, Yes )
 Select debian desktop and gnome in addition to ssh and standard system utilities.
 
 Force GRUB to install to the EFI ( Yes )
 Update NVMRAM to boot Debian ( Yes )
 Stuck at Unable to install GRUB in dummy.
-Continue without bootloader. Power off rockpi4b when installation completed. Remove USB3 1TB SSD.
+Continue without bootloader. Power off rockpi4b when installation completed. Remove NVMe-SSD.
 
 Plugin NVMe-SSD to PC.
 sudo fdisk -l /dev/sda
-sudo e2label /dev/sda2 rootfs
+sudo e2label /dev/sda3 rootfs
 sudo blkid /dev/sda1 ( write down UUID )
-sudo blkid /dev/sda2 ( write down UUID )
-sudo mount /dev/sda2 /mnt
+sudo blkid /dev/sda3 ( write down UUID )
+sudo mount /dev/sda3 /mnt
+sudo cp -r ../linux/linux/tmp/lib/modules/* /mnt/lib/modules
+sudo cp -r ../linux/linux/tmp/boot/* /mnt/boot
 ls -la /mnt/boot
 sudo touch /mnt/boot/grub/grub.cfg
 sudo vi /mnt/boot/grub/grub.cfg ( add
@@ -71,22 +68,26 @@ set timeout=5
 set default="Boot UUID"
 set menu_color_normal=white/black
 set menu_color_highlight=white/green
-set root=(nvme0n1,gpt2)
+set root=(nvme0n1,gpt3)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt2' --hint='mmcblk1,gpt2' --hint='nvme0n1,gpt2' 24038d01-1ea3-4f9c-8a66-3191646126b9
-    echo    'Loading Linux 6.1.0-40-arm64 ...'
-    linux /boot/vmlinuz-6.1.0-40-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 7e489499-60a8-41c2-82fb-9f1fea4981e4
+    echo    'Loading Linux 6.1.0-41-arm64 ...'
+    linux /boot/vmlinuz-6.1.0-41-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
-    initrd /boot/initrd.img-6.1.0-40-arm64
+    initrd /boot/initrd.img-6.1.0-41-arm64
 }
 )
 sudo vi /mnt/etc/fstab ( change UUID for /boot/efi )
 sudo mkdir /mnt/lib/firmware/brcm
 sudo cp ./packages/* /mnt/lib/firmware/brcm
 sync; sudo umount /mnt;
+sudo mount /dev/sda1 /mnt
+sudo \rm -rf /mnt/EFI/fedora
+sync; sudo umount /mnt;
 Eject NVMe-SSD from PC.
 
+Boot old kernel.
 Plugin NVMe-SSD to rockpi4b. Remove ethernet cable from rockpi4b. Power on rockpi4b.
 Setup wifi. Disable power saving, auto suspend and screen saver.
 su -
@@ -104,10 +105,33 @@ sudo apt update
 sudo apt upgrade
 sync
 free
+sudo vi /etc/grub.d/40_custom_uuid ( add
+#!/bin/sh
+exec tail -n +3 $0
+
+menuentry "Boot from UUID2" {
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 7e489499-60a8-41c2-82fb-9f1fea4981e4
+    echo    'Loading Linux 6.18.0-rc4-dirty ...'
+    linux /boot/vmlinuz-6.18.0-rc4-dirty root=LABEL=rootfs rootwait rw rootdelay=10
+    echo    'Loading initial ramdisk ...'
+    initrd /boot/initrd.img-6.18.0-rc4-dirty
+    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
+}
+)
+Note: change the above UUID to real UUID like: b3adbe54-ab88-4da5-a9a6-08cf87a09d69
+
+sudo chmod +x /etc/grub.d/40_custom_uuid
+
+sudo vi /etc/default/grub ( change GRUB_DEFAULT=0 to GRUB_DEFAULT="Boot from UUID2" )
+sudo update-grub  ( generate grub.cfg )
+sudo update-initramfs -c -k 6.18.0-rc4-dirty
+sync
+sudo reboot
+
 Check if Debian is running UEFI mode:
 ls /sys/firmware/efi
 
-sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pandoc pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
 
 speedtest-cli --secure
 

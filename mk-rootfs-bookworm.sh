@@ -65,6 +65,8 @@ cat << EOF | sudo chroot $TARGET_ROOTFS_DIR
 rm -rf /etc/resolv.conf
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
 resolvconf -u
+cat /etc/resolv.conf
+
 apt-get update
 \rm -rf /etc/initramfs/post-update.d/z50-raspi-firmware
 apt-get upgrade -y

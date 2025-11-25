@@ -3,6 +3,8 @@ Compile uboot:
 git clone https://github.com/radxa/rkbin.git -b master --tags develop-v20240301
 mv develop-v20240301 rkbin
 git clone --depth=1 --branch=v2023.01 https://source.denx.de/u-boot/u-boot.git
+
+To boot extlinux:
 vi ./u-boot/configs/rock-pi-4-rk3399_defconfig ( append:
 CONFIG_MMC_SDHCI_SDMA=y
 CONFIG_NVME=y
@@ -13,6 +15,23 @@ CONFIG_BOOTSTD=y
 CONFIG_BOOTSTD_FULL=y
 CONFIG_BOOTFLOW=y
 CONFIG_BOOTFLOW_FULL=y
+)
+
+To boot uefi:
+vi ./u-boot/configs/rock-pi-4-rk3399_defconfig ( append:
+CONFIG_MMC_SDHCI_SDMA=y
+CONFIG_NVME=y
+CONFIG_CMD_NVME=y
+CONFIG_EFI_PARTITION=y
+CONFIG_PARTITION_TYPE_GUID=y
+CONFIG_CMD_GPT=y
+CONFIG_CMD_PART=y
+CONFIG_CMD_FS_UUID=y
+CONFIG_CMD_FAT=y
+CONFIG_FS_FAT=y
+CONFIG_CMD_MMC=y
+CONFIG_EFI_LOADER=y
+CONFIG_CMD_BOOTEFI=y
 )
 
 \rm -rf out; mkdir out;

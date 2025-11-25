@@ -10,7 +10,7 @@ wget http://http.us.debian.org/debian/dists/trixie/main/installer-arm64/current/
 wget http://http.us.debian.org/debian/dists/trixie/main/installer-arm64/current/images/netboot/debian-installer/arm64/initrd.gz
 
 cd ~/build-rockpi4b/trixie-uefi
-Plugin USB3 1TB SSD to PC. 
+Plugin sdcard to PC. 
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
@@ -38,25 +38,24 @@ cd /mnt
 sudo \rm -rf b* c* f* o* r* s*
 cd
 sync; sudo umount /mnt;
-Eject USB3 1TB SSD from PC.
+Eject sdcard from PC.
 
 Plugin NVMe-SSD to PC.
-cd ~/build-rockpi4b/trixie-uefi
 sudo ./mknvme.sh
 sudo mkfs.ext4 /dev/sda1
 sudo fdisk -l /dev/sda
 Eject NVMe-SSD from PC.
 
-Plugin USB3 1TB SSD and NVMe-SSD to rockpi4b. Plugin ethernet cable to rockpi4b. Power on rockpi4b.
+Plugin sdcard, NVMe-SSD and ethernet cable to rockpi4b. Power on rockpi4b.
 
 loading missing firmware? No
 Set User name: linaro
-Partition ( Manual, select nvme, create empty yes, select free, auto partion, all, finish, Yes )
+Partition ( Manual, select NVMe, erase, select free, auto partion, all, finish, Yes )
 Select debian desktop and gnome in addition to ssh and standard system utilities.
 
 Force GRUB to install to the EFI ( Yes )
 Update NVMRAM to boot Debian ( Yes )
-Power off rockpi4b when installation completed. Remove USB3 1TB SSD and ethernet cable.
+Power off rockpi4b when installation completed. Remove sdcard, NVMe-SSD and ethernet cable.
 
 Plugin NVMe-SSD to PC.
 sudo fdisk -l /dev/sda
@@ -64,9 +63,11 @@ sudo e2label /dev/sda3 rootfs
 sudo blkid /dev/sda2 ( write down UUID )
 sudo blkid /dev/sda3 ( write down UUID )
 sudo mount /dev/sda3 /mnt
+sudo cp -r ../linux/linux/tmp/lib/modules/* /mnt/lib/modules
+sudo cp -r ../linux/linux/tmp/boot/* /mnt/boot
 ls -la /mnt/boot
 sudo touch /mnt/boot/grub/grub.cfg
-sudo vi /mnt/boot/grub/grub.cfg ( add
+sudo vi /mnt/boot/grub/grub.cfg ( delete everything, add
 set timeout=5
 set default="Boot UUID"
 set menu_color_normal=white/black
@@ -74,11 +75,11 @@ set menu_color_highlight=white/green
 set root=(nvme0n1,gpt3)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 247173a4-4e0c-4eb4-9e32-1fb7b113cfe3
-    echo    'Loading Linux 6.12.48+deb13-arm64 ...'
-    linux /boot/vmlinuz-6.12.48+deb13-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' bdf93724-a7e9-43a3-88a1-3df7d9acc787
+    echo    'Loading Linux 6.12.57+deb13-arm64 ...'
+    linux /boot/vmlinuz-6.12.57+deb13-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
-    initrd /boot/initrd.img-6.12.48+deb13-arm64
+    initrd /boot/initrd.img-6.12.57+deb13-arm64
 }
 )
 sudo vi /mnt/etc/fstab ( change UUID for /boot/efi )
@@ -87,6 +88,7 @@ sudo cp ./packages/* /mnt/lib/firmware/brcm
 sync; sudo umount /mnt;
 Eject NVMe-SSD from PC.
 
+Boot old kernel.
 Plugin NVMe-SSD to rockpi4b. Power on rockpi4b.
 Setup wifi. Disable power saving, auto suspend and screen saver.
 su -
@@ -106,10 +108,35 @@ sudo apt update
 sudo apt upgrade
 sync
 free
+sudo vi /etc/grub.d/40_custom_uuid ( add
+#!/bin/sh
+exec tail -n +3 $0
+
+menuentry "Boot from UUID2" {
+    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' bdf93724-a7e9-43a3-88a1-3df7d9acc787
+    echo    'Loading Linux 6.18.0-rc4-dirty ...'
+    linux /boot/vmlinuz-6.18.0-rc4-dirty root=LABEL=rootfs rootwait rw rootdelay=10
+    echo    'Loading initial ramdisk ...'
+    initrd /boot/initrd.img-6.18.0-rc4-dirty
+    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
+}
+)
+Note: change the above UUID to real UUID like: b3adbe54-ab88-4da5-a9a6-08cf87a09d69
+
+sudo chmod +x /etc/grub.d/40_custom_uuid
+
+sudo vi /etc/default/grub ( change GRUB_DEFAULT=0 to GRUB_DEFAULT="Boot from UUID2" )
+sudo update-grub  ( generate grub.cfg )
+sudo update-initramfs -c -k 6.18.0-rc4-dirty
+sync
+sudo reboot
+
+uname -a
+lsb_release -a
 Check if Debian is running UEFI mode:
 ls /sys/firmware/efi
 
-sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pandoc pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
 
 speedtest-cli --secure
 

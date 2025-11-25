@@ -1,6 +1,6 @@
 #!/bin/sh
 BOOT=/dev/sda
-dd if=/dev/zero of=${BOOT} bs=1M count=0 seek=1024
+dd if=/dev/zero of=${BOOT} bs=1M count=1024 conv=notrunc,fsync
 parted -s ${BOOT} mklabel gpt
 parted -s ${BOOT} unit s mkpart loader1 64 8063
 parted -s ${BOOT} unit s mkpart loader2 16384 24575

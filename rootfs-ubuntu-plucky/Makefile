@@ -34,11 +34,11 @@ prebuild:
 	--keyring-packages ubuntu-keyring \
 	--linux-flavours none \
 	--linux-packages none \
-	--parent-mirror-binary 'http://ports.ubuntu.com/ubuntu-ports/' \
-	--parent-mirror-binary-security 'http://ports.ubuntu.com/ubuntu-ports/' \
-	--parent-mirror-bootstrap 'http://ports.ubuntu.com/ubuntu-ports/' \
-	--parent-mirror-chroot 'http://ports.ubuntu.com/ubuntu-ports/' \
-	--parent-mirror-chroot-security 'http://ports.ubuntu.com/ubuntu-ports/' \
+	--parent-mirror-binary 'http://mirrors.mit.edu/ubuntu-ports/' \
+	--parent-mirror-binary-security 'http://mirrors.mit.edu/ubuntu-ports/' \
+	--parent-mirror-bootstrap 'http://mirrors.mit.edu/ubuntu-ports/' \
+	--parent-mirror-chroot 'http://mirrors.mit.edu/ubuntu-ports/' \
+	--parent-mirror-chroot-security 'http://mirrors.mit.edu/ubuntu-ports/' \
 	--mode ubuntu \
 	--security true \
 	--system normal
