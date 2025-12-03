@@ -72,6 +72,14 @@ apt-get update
 apt-get upgrade -y
 apt-get install -y build-essential git wget firmware-linux grub-efi-arm64 e2fsprogs zstd initramfs-tools gdm3
 
+# Install mesa 25
+export DEBIAN_FRONTEND=noninteractive
+echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/backports.list
+apt update
+apt install -t bookworm-backports -y --no-install-recommends \
+    mesa-vulkan-drivers mesa-va-drivers libgl1-mesa-dri libglx-mesa0 libegl-mesa0 libgbm1 libgles2-mesa
+ldconfig
+
 mkdir -p /boot/efi
 grub-install --target=arm64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 update-grub

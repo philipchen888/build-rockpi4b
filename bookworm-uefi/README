@@ -2,6 +2,9 @@ Build bookworm-uefi sdcard image for rockpi4b:
 
 # There is no edk2-rk3399, so we use fedora-40 as edk2-rk3399 to install debian-12.11.0-arm64-netinst.iso to rockpi4b.
 
+Input files ../linux/linux/tmp/lib/modules/
+            ../linux/linux/tmp/boot/
+
 cd ~/Downloads
 wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/40/Workstation/aarch64/images/Fedora-Workstation-40-1.14.aarch64.raw.xz
 wget https://mirror.us.mirhosting.net/debian-cd/12.11.0/arm64/iso-cd/debian-12.11.0-arm64-netinst.iso
@@ -14,30 +17,25 @@ Plugin NVMe-SSD to PC.
 sudo ./mksdcardimg.sh
 sudo mkfs.vfat /dev/sda1
 sudo mkfs.ext4 /dev/sda2
-sudo mkfs.ext4 /dev/sda3
 sudo fdisk -l /dev/sda
 xzcat ~/Downloads/Fedora-Workstation-40-1.14.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=256 seek=4096 count=415744 conv=notrunc,fsync
 sudo e2fsck -f /dev/sda2
 sudo resize2fs /dev/sda2
 sudo mount /dev/sda2 /mnt
-cd /mnt
-sudo \rm -rf efi dtb-* init* lost+found symvers* System* vmlinuz* .vmlinuz* config* dtb
-sudo 7z x ~/Downloads/debian-12.11.0-arm64-netinst.iso; sync;
-sudo cp ~/Downloads/linux .
-sudo cp ~/Downloads/initrd.gz .
-sudo chmod 755 loader/entries
-sudo chmod 755 loader/entries/*
-sudo vi loader/entries/* ( change to
+sudo \rm -rf /mnt/efi /mnt/dtb-* /mnt/init* /mnt/lost+found /mnt/symvers* /mnt/System* /mnt/vmlinuz* /mnt/.vmlinuz* /mnt/config* /mnt/dtb
+sudo 7z x ~/Downloads/debian-12.11.0-arm64-netinst.iso -o/mnt && sync
+sudo cp ~/Downloads/linux /mnt
+sudo cp ~/Downloads/initrd.gz /mnt
+sudo chmod 755 /mnt/loader/entries
+sudo chmod 755 /mnt/loader/entries/*
+sudo vi /mnt/loader/entries/* ( change to
 linux /linux
 initrd /initrd.gz
 delete options
 )
-cd
 sync; sudo umount /mnt;
 sudo mount /dev/sda1 /mnt
-cd /mnt
-sudo \rm -rf b* c* f* o* r* s*
-cd
+sudo \rm -rf /mnt/b* /mnt/c* /mnt/f* /mnt/o* /mnt/r* /mnt/s*
 sync; sudo umount /mnt;
 Eject NVMe-SSD from PC.
 
@@ -45,7 +43,7 @@ Plugin NVMe-SSD and ethernet cable to rockpi4b. Power on rockpi4b.
 
 loading missing firmware? No
 Set User name: linaro
-Partition ( Manual, select partion 3, erase, select free, auto partion, all, finish, Yes )
+Partition ( Manual, select space, auto partion, all, finish, Yes )
 Select debian desktop and gnome in addition to ssh and standard system utilities.
 
 Force GRUB to install to the EFI ( Yes )
@@ -68,16 +66,17 @@ set timeout=5
 set default="Boot UUID"
 set menu_color_normal=white/black
 set menu_color_highlight=white/green
-set root=(nvme0n1,gpt3)
 
 menuentry "Boot UUID" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 7e489499-60a8-41c2-82fb-9f1fea4981e4
-    echo    'Loading Linux 6.1.0-41-arm64 ...'
-    linux /boot/vmlinuz-6.1.0-41-arm64 root=LABEL=rootfs rootwait rw rootdelay=10
+    search --no-floppy --fs-uuid --set=root c340f89d-f13a-4752-9c95-5805f3242f2b
+    echo    'Loading Linux 6.18.0-dirty ...'
+    linux /boot/vmlinuz-6.18.0-dirty root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
     initrd /boot/initrd.img-6.1.0-41-arm64
+    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
 }
 )
+Note: change above UUID accordingly.
 sudo vi /mnt/etc/fstab ( change UUID for /boot/efi )
 sudo mkdir /mnt/lib/firmware/brcm
 sudo cp ./packages/* /mnt/lib/firmware/brcm
@@ -87,13 +86,12 @@ sudo \rm -rf /mnt/EFI/fedora
 sync; sudo umount /mnt;
 Eject NVMe-SSD from PC.
 
-Boot old kernel.
 Plugin NVMe-SSD to rockpi4b. Remove ethernet cable from rockpi4b. Power on rockpi4b.
 Setup wifi. Disable power saving, auto suspend and screen saver.
 su -
 usermod -aG adm,sudo,video linaro
 sync
-reboot
+shutdown -h now
 
 sudo apt install net-tools openssh-server pulseaudio-utils
 sudo ifconfig
@@ -105,33 +103,30 @@ sudo apt update
 sudo apt upgrade
 sync
 free
-sudo vi /etc/grub.d/40_custom_uuid ( add
-#!/bin/sh
-exec tail -n +3 $0
 
-menuentry "Boot from UUID2" {
-    search --no-floppy --fs-uuid --set=root --hint='usb0,gpt3' --hint='mmcblk1,gpt3' --hint='nvme0n1,gpt3' 7e489499-60a8-41c2-82fb-9f1fea4981e4
-    echo    'Loading Linux 6.18.0-rc4-dirty ...'
-    linux /boot/vmlinuz-6.18.0-rc4-dirty root=LABEL=rootfs rootwait rw rootdelay=10
-    echo    'Loading initial ramdisk ...'
-    initrd /boot/initrd.img-6.18.0-rc4-dirty
-    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
-}
+Install mesa 25:
+su -
+export DEBIAN_FRONTEND=noninteractive
+echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/backports.list
+apt update
+apt install -t bookworm-backports -y --no-install-recommends mesa-vulkan-drivers mesa-va-drivers libgl1-mesa-dri libglx-mesa0 libegl-mesa0 libgbm1 libgles2-mesa
+ldconfig
+exit
+sync
+free
+sudo update-initramfs -u -k $(uname -r)
+sudo vi /boot/grub/grub.cfg ( change to:
+   initrd /boot/initrd.img-6.18.0-dirty
 )
-Note: change the above UUID to real UUID like: b3adbe54-ab88-4da5-a9a6-08cf87a09d69
-
-sudo chmod +x /etc/grub.d/40_custom_uuid
-
-sudo vi /etc/default/grub ( change GRUB_DEFAULT=0 to GRUB_DEFAULT="Boot from UUID2" )
-sudo update-grub  ( generate grub.cfg )
-sudo update-initramfs -c -k 6.18.0-rc4-dirty
 sync
 sudo reboot
 
+uname -a
+lsb_release -a
 Check if Debian is running UEFI mode:
 ls /sys/firmware/efi
 
-sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools chromium chromium-sandbox pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
+sudo apt install flex bison libelf-dev libssl-dev build-essential libncurses-dev git speedtest-cli glmark2-es2-wayland mpv ffmpeg python3-pip python3-setuptools pavucontrol zip rfkill vlc vlc-plugin-video-output vsftpd
 
 speedtest-cli --secure
 
