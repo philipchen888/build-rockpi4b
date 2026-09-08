@@ -1,0 +1,80 @@
+Build buildroot sdcard image for rockpi4b.
+
+See ../uboot/README to erase SPI flash.
+Input files: ../uboot/out/idbloader.img
+             ../uboot/out/uboot.img
+             ../uboot/out/trust.img
+             ../linux/linux/arch/arm64/boot/Image
+             ../linux/linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dtb
+             ../linux/linux/tmp/lib/modules/
+
+wget https://buildroot.org/downloads/buildroot-2026.05.tar.xz
+tar -xJf buildroot-2026.05.tar.xz
+mv buildroot-2026.05 buildroot
+
+vi ./buildroot/configs/rock4se_defconfig ( delete UBOOT, KERNEL, BR2_DOWNLOAD_FORCE_CHECK_HASHES=y, BR2_GLOBAL_PATCH_DIR, append ./patches/rockpi4_defconfig )
+cp ./patches/rockpi-4/* ./buildroot/board/radxa/rock4se/
+
+cd buildroot
+\rm -rf .config output
+make clean
+sudo update-alternatives --install /usr/bin/install install /usr/bin/gnuinstall 100
+make rock4se_defconfig
+make
+
+The result is in ./output/images/sdcard.img
+
+Plugin sdcard to PC.
+sudo dd if=./output/images/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+
+sudo partprobe /dev/sda
+
+sudo mount /dev/sda5 /mnt
+sudo vi /mnt/etc/network/interfaces ( delete everything after iface lo inet loopback )
+sudo vi /mnt/etc/vsftpd.conf ( anonymous_enable=NO, local_enable=YES, write_enable=YES )
+sudo mkdir -p /mnt/lib/modules
+sudo cp -r ../../linux/linux/tmp/lib/modules/* /mnt/lib/modules
+sudo mkdir -p /mnt/lib/firmware/brcm/
+sudo cp ../patches/brcm/* /mnt/lib/firmware/brcm/
+sync; sudo umount /mnt;
+Eject sdcard from PC.
+
+Plugin sdcard to rockpi4b.
+login:
+username: root
+password: linaro
+
+wpa_passphrase your_SSID your_passphrase > /etc/ssid.conf
+wpa_supplicant -B -i wlan0 -c /etc/ssid.conf
+dhcpcd wlan0
+
+ifconfig
+
+ssh root@192.168.86.211
+
+uname -a
+adduser linaro
+
+date
+aplay -l
+
+vi /etc/asound.conf ( add
+pcm.!default {
+type hw
+card 1
+}
+ctl.!default {
+type hw
+card 1
+}
+)
+
+alsactl -F restore
+
+aplay /home/linaro/yoursong.wav
+mpv /home/linaro/yoursong.mp3
+
+bluetoothctl list
+hciconfig hci0
+hciconfig -a
+hcitool dev

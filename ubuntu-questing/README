@@ -1,0 +1,67 @@
+Build ubuntu-questing sdcard for rockpi4b:
+
+Input files: ../rootfs-ubuntu-questing/linaro-rootfs.img
+                                      /linaro-esp.img
+
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to PC.
+sudo ./mksdcardimg.sh
+sudo mount /dev/sda2 /mnt
+sudo cp ./rtlbt/* /mnt/lib/firmware/rtl_bt && sync && sudo umount /mnt
+Eject NVME-SSD/sdcard/emmc/USB2-SATA-SSD from PC.
+
+Plugin NVME-SSD/sdcard/emmc/USB2-SATA-SSD to rockpi4b.
+Login:
+Username: linaro
+Password: linaro
+Setup wifi.
+Disable power saving, auto suspend and screen saver.
+uname -a
+lsb_release -a
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+date
+sudo apt update
+sudo apt upgrade
+sudo apt dist-upgrade
+sync
+free
+glxinfo | grep OpenGL
+date
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
+
+sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2-wayland pandoc vlc vlc-plugin-video-output vsftpd
+
+speedtest-cli --secure
+
+glmark2-es2-wayland
+
+aplay -l     ( if no hdmi show up, sudo udevadm trigger --action=add --subsystem-match=platform )
+pavucontrol  ( select hdmi1 as default )
+
+# sudo add-apt-repository ppa:mozillateam/ppa
+# sudo apt update; sudo apt upgrade -y;
+# sudo apt install firefox
+# firefox -> youtube -> search YmDNhi07_Ho
+
+Do follows on PC, then ftp swan.mp4 to rockpi4b.
+(
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -c:v libx264 -b:v 2M -c:a copy"
+)
+
+mpv --hwdec=auto-copy swan.mp4
+ffplay -autoexit swan.mp4
+cvlc --gl=wgl --glconv=any swan.mp4
+
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a

@@ -1,0 +1,137 @@
+Build ubuntu-uefi sdcard image for rockpi4b:
+
+Need external fan !!
+ubuntu-26.04 needs 6GB DDR !! So use ubuntu-25.10 for now.
+
+Install ubuntu from USB3 1TB SSD ubuntu iso to empty NVMe-SSD.
+
+Input files: ../linux/linux/tmp/lib/modules
+             ../linux/linux/arch/arm64/boot/Image
+             ../linux/linux/arch/arm64/boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
+
+cd ~/Downloads
+wget https://cdimage.ubuntu.com/ubuntu/releases/questing/release/ubuntu-25.10-desktop-arm64.iso
+
+cd ~/build-rockpi4b/ubuntu-uefi
+
+Plugin USB3 1TB SSD to PC.
+sudo ./mkusb3stick.sh
+sudo mkfs.vfat /dev/sda1
+sudo fdisk -l /dev/sda
+sudo mount /dev/sda1 /mnt
+sudo 7z x ~/Downloads/ubuntu-25.10-desktop-arm64.iso -o/mnt && sync && sudo umount /mnt
+Eject USB3 1TB SSD from PC.
+
+Plugin NVMe-SSD to PC.
+sudo ./mknvme.sh
+Eject NVMe-SSD from PC.
+
+Plugin NVMe-SSD, USB3 1TB SSD and ethernet cable to rockpi4b. Power on rockpi4b.
+
+Select install
+Double click Install Ubuntu LTS icon.
+Erase disk.  ( if no NVMe SSD detected, power off/on again )
+Contine till finished. Restart.
+
+Remove USB3 1TB SSD from rockpi4b.
+Plugin NVMe-SSD to PC.
+sudo fdisk -l /dev/sda
+sudo e2label /dev/sda2 rootfs
+sudo blkid /dev/sda1 ( write down UUID )
+sudo blkid /dev/sda2 ( write down UUID )
+sudo mount /dev/sda2 /mnt
+sudo cp -r ../linux/linux/tmp/lib/modules/* /mnt/lib/modules
+sudo cp -r ../linux/linux/tmp/boot/* /mnt/boot
+ls -la /mnt/boot
+sudo touch /mnt/boot/grub/grub.cfg
+sudo vi /mnt/boot/grub/grub.cfg ( delete everything, add
+set timeout=5
+set default="Boot UUID"
+set menu_color_normal=white/black
+set menu_color_highlight=white/green
+
+menuentry "Boot UUID" {
+    search --no-floppy --fs-uuid --set=root d9f66b23-9b3d-4c90-9f58-ccf99c0e88fa
+    echo    'Loading Linux 6.18.0-dirty ...'
+    linux /boot/vmlinuz-6.18.0-dirty root=LABEL=rootfs rootwait rw rootdelay=10
+    echo    'Loading initial ramdisk ...'
+    initrd /boot/initrd.img-6.17.0-41-generic
+    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
+}
+)
+Note: update above UUID, devicetree accordingly.
+sudo mkdir -p /mnt/lib/firmware/brcm
+sudo cp ./packages/* /mnt/lib/firmware/brcm
+sync; sudo umount /mnt;
+Eject NVMe-SSD from PC.
+
+Remove ethernet cable.
+Plugin NVMe SSD to rockpi4b. Power on rockpi4b.
+Login:
+Username: linaro
+Password: linaro
+(rockpi4b) Setup wifi.
+Disable power saving, auto suspend and screen saver.
+sudo apt install net-tools openssh-server pulseaudio-utils
+sudo ifconfig
+uname -a
+lsb_release -a
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+date
+sudo apt update; sudo apt upgrade -y; sudo apt dist-upgrade -y;
+cd /lib/firmware/rtl_bt
+sudo zstd -d rtl8761bu_fw.bin.zst
+sudo zstd -d rtl8761bu_config.bin.zst
+cd
+sync
+free
+sudo update-initramfs -u -k $(uname -r)
+sudo vi /boot/grub/grub.cfg ( change to:
+   initrd /boot/initrd.img-6.18.0-dirty
+)
+sync
+sudo reboot
+
+uname -a
+lsb_release -a
+glxinfo | grep OpenGL
+date
+Check if Ubuntu is running UEFI mode:
+ls /sys/firmware/efi
+Check display mode: ( wayland or x11 )
+echo $XDG_SESSION_TYPE
+Check audio driver: ( pulseaudio or pipewire )
+pactl info
+
+sudo apt install speedtest-cli python3-pip python3-setuptools ffmpeg mpv glmark2-es2-wayland pandoc vlc vlc-plugin-video-output pavucontrol git vsftpd 
+
+speedtest-cli --secure
+
+glmark2-es2-wayland
+
+aplay -l
+pavucontrol ( set hdmi as default )
+
+# sudo add-apt-repository ppa:mozillateam/ppa
+# sudo apt update; sudo apt upgrade -y;
+# sudo apt install firefox-esr
+# firefox -> youtube.com -> search YmDNhi07_Ho
+
+Do follows on PC, then ftp swan.mp4 to rockpi4b.
+(
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -c:v libx264 -b:v 2M -c:a copy"
+)
+
+mpv --hwdec=auto-copy swan.mp4
+ffplay -autoexit swan.mp4
+cvlc --gl=wgl --glconv=any swan.mp4
+
+sudo rfkill list
+hciconfig hci0
+hcitool dev
+hciconfig -a

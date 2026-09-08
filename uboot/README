@@ -1,0 +1,75 @@
+Compile uboot:
+
+git clone https://github.com/radxa/rkbin.git -b master --tags develop-v20240301
+mv develop-v20240301 rkbin
+\rm -rf u-boot
+git clone --depth=1 -b v2023.01 https://source.denx.de/u-boot/u-boot.git
+
+To boot extlinux:
+vi ./u-boot/configs/rock-pi-4-rk3399_defconfig ( append:
+CONFIG_MMC_SDHCI_SDMA=y
+CONFIG_NVME=y
+CONFIG_CMD_NVME=y
+CONFIG_BOOTMETH_EXTLINUX=y
+CONFIG_BOOTMETH_EXTLINUX_PXE=y
+CONFIG_BOOTSTD=y
+CONFIG_BOOTSTD_FULL=y
+CONFIG_BOOTFLOW=y
+CONFIG_BOOTFLOW_FULL=y
+CONFIG_BLOBLIST=y
+CONFIG_BLOBLIST_ALLOC=y
+)
+
+To boot uefi:
+vi ./u-boot/configs/rock-pi-4-rk3399_defconfig ( append:
+CONFIG_MMC_SDHCI_SDMA=y
+CONFIG_NVME=y
+CONFIG_CMD_NVME=y
+CONFIG_EFI_PARTITION=y
+CONFIG_PARTITION_TYPE_GUID=y
+CONFIG_CMD_GPT=y
+CONFIG_CMD_PART=y
+CONFIG_CMD_FS_UUID=y
+CONFIG_CMD_FAT=y
+CONFIG_FS_FAT=y
+CONFIG_CMD_MMC=y
+CONFIG_EFI_LOADER=y
+CONFIG_CMD_BOOTEFI=y
+CONFIG_BLOBLIST=y
+CONFIG_BLOBLIST_ALLOC=y
+)
+vi u-boot/scripts/dtc/pylibfdt/libfdt.i_shipped search SWIG_Python_AppendOutput add ,1 after val buff
+make u-boot
+
+The results are in ./out/u-boot.img
+                         trust.img
+                         idbloader.img
+                         uboot-trust-spi.img
+
+make clean
+
+------------------------------------------------------
+
+Program spi nor flash with u-boot:
+
+wget https://github.com/radxa/rock-pi-images-released/releases/download/v20210824/rockpi4b_debian_buster_xfce4_arm64_20210824_0233-gpt.img.gz
+gunzip rockpi4b_debian_buster_xfce4_arm64_20210824_0233-gpt.img.gz
+
+Unplug EMMC/USB-SATA-SSD/NVMe-SSD from rockpi4b
+Burn rockpi4b_debian_buster_xfce4_arm64_20210824_0233-gpt.img to sdcard.
+sudo mount /dev/sda4 /mnt
+sudo vi /mnt/hw_intfc.conf ( change to intfc:uart4=off intfc:spi1=on intfc:dtoverlay=spi1-flash )
+sync; sudo umount /mnt
+Eject sdcard from PC
+Boot rockpi4b with sdcard.  ( username: rock, password: rock )
+
+Erase spi nor flash:
+ls /dev ( find mtdblock0 )
+sudo dd if=/dev/zero of=/dev/mtdblock0 bs=1M seek=0 count=4
+sync
+
+Install uboot to spi nor flash:
+sudo dd if=./uboot-trust-spi.img of=/dev/mtdblock0 bs=1M seek=0
+sync
+
+--------------------------------------------------------

@@ -1,0 +1,17 @@
+#!/bin/sh
+exec tail -n +3 $0
+
+menuentry "Boot from UUID" {
+    search --no-floppy --fs-uuid --set=root 0c21ae25-58aa-4153-87f6-ea31b7a8e0f5
+    echo    'Loading Linux 6.16.0 ...'
+    linux /boot/vmlinuz-6.16.0 root=LABEL=rootfs rw rootwait rootdelay=10 8250.nr_uarts=5 \
+    8250.port0=0xff180000,0,0,0,0 \
+    8250.port1=0x0,0,0,0,0 \
+    8250.port2=0xff1a0000,0,0,0,0 \
+    8250.port3=0x0,0,0,0,0 \
+    8250.port4=0xff370000,0,0,0,0
+    echo    'Loading initial ramdisk ...'
+    initrd /boot/initrd.img-6.16.0
+    echo    'Loading rk3399-rock-pi-4b.dtb'
+    devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
+}

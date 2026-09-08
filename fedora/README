@@ -1,0 +1,79 @@
+Build fedora sdcard image for rockpi4b:
+
+cd ~/Downloads
+wget https://archives.fedoraproject.org/pub/fedora/linux/releases/44/Workstation/aarch64/images/Fedora-Workstation-Disk-44-1.7.aarch64.raw.xz
+
+Plugin USB3 1TB SSD to PC.
+sudo ./mksdcardimg.sh
+sudo mkfs.vfat /dev/sda1
+sudo mkfs.ext4 /dev/sda2
+sudo mkfs.ext4 /dev/sda3
+sudo fdisk -l /dev/sda
+xzcat ~/Downloads/Fedora-Workstation-Disk-44-1.7.aarch64.raw.xz | sudo dd status=progress bs=4096 of=/dev/sda skip=4352 seek=4352 conv=notrunc,fsync
+sudo mount /dev/sda3 /mnt
+sudo mkdir -p /mnt/root/lib/firmware/brcm
+sudo cp ./packages/* /mnt/root/lib/firmware/brcm
+sync; sudo umount /mnt;
+Eject USB3 1TB SSD from PC.
+
+Plugin USB3 1TB SSD to rockpi4b. Power on rockpi4b.
+
+Disable power saving and screen saver.
+
+sudo btrfs filesystem resize max /
+df .
+uname -a
+cat /etc/fedora-release
+sudo systemctl start sshd.service
+sudo systemctl enable sshd.service
+sudo ifconfig
+rpm -qa | grep -i kernel
+sudo dnf install kernel-devel-6.19.10-300.fc44.aarch64
+rpm -qa | grep -i kernel
+add: exclude=kernel* to /etc/dnf/dnf.conf
+sudo dnf update
+sudo grub2-editenv create
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo sudo grubby --set-default /boot/vmlinuz-6.19.10-300.fc44.aarch64
+sudo grubby --default-kernel
+sudo grubby --info DEFAULT
+sudo grubby --info /boot/vmlinuz-6.19.10-300.fc44.aarch64
+sudo ls -l /boot/loader/entries
+sync
+free
+sudo reboot
+
+uname -a
+cat /etc/fedora-release
+sudo dnf install speedtest-cli glmark2-es2-wayland mpv yt-dlp pavucontrol openssl-devel vsftpd vlc pandoc
+
+speedtest-cli --secure
+glmark2-es2-wayland
+
+aplay -l
+pavucontrol  ( select hdmi as default )
+
+firefox -> youtube.com -> search YmDNhi07_Ho
+
+sudo vi /etc/vsftpd/vsftpd.conf
+sudo systemctl restart vsftpd
+sudo firewall-cmd --add-service=ftp --permanent
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-all
+
+Do follows on PC, then ftp swan.mp4 to rockpi4b
+(
+git clone https://github.com/yt-dlp/yt-dlp.git
+cd yt-dlp
+make 
+cd ../
+~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4][protocol=https]+bestaudio[ext=m4a][protocol=https]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -r 10 -c:v libx264 -b:v 2M -c:a copy"
+)
+
+mpv --hwdec=auto-copy swan.mp4
+ffplay -autoexit swan.mp4
+cvlc --gl=wgl --glconv=any swan.mp4
+
+Plugin ASUS BT500 bluetooth usb dongle to rpi4b.
+sudo rfkill list
+bluetoothctl -> scan on -> scan off -> exit
