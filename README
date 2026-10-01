@@ -51,7 +51,7 @@ Steps to build rockpi4b sdcard image:
    sync
 
 4. cd ~/build-rockpi4b/linux ( Compile mainline kernel )
-   git clone --depth=1 --branch v6.18 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+   git clone --depth=1 --branch v6.19 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
    vi ./linux/arch/arm64/configs/defconfig ( enable NVMe )
 
    vi ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi ( change i2c7 uart4 spi2 pwm1 )
@@ -128,7 +128,7 @@ Steps to build rockpi4b sdcard image:
 
 17. cd ~/build-rockpi4b/android       ( Build android image )
 
-18. cd ~/build-rockpi4b/bookworm-flightaware  ( flightaware in bookworm )
+18. cd ~/build-rockpi4b/trixie-flightaware  ( Build flightaware image )
 
 19. cd ~/build-rockpi4b/yocto         ( Build yocto desktop image )
 

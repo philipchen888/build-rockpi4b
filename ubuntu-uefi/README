@@ -52,8 +52,8 @@ set menu_color_highlight=white/green
 
 menuentry "Boot UUID" {
     search --no-floppy --fs-uuid --set=root d9f66b23-9b3d-4c90-9f58-ccf99c0e88fa
-    echo    'Loading Linux 6.18.0-dirty ...'
-    linux /boot/vmlinuz-6.18.0-dirty root=LABEL=rootfs rootwait rw rootdelay=10
+    echo    'Loading Linux 6.19.0-dirty ...'
+    linux /boot/vmlinuz-6.19.0-dirty root=LABEL=rootfs rootwait rw rootdelay=10
     echo    'Loading initial ramdisk ...'
     initrd /boot/initrd.img-6.17.0-41-generic
     devicetree /boot/dtb/rockchip/rk3399-rock-pi-4b.dtb
@@ -70,7 +70,7 @@ Plugin NVMe SSD to rockpi4b. Power on rockpi4b.
 Login:
 Username: linaro
 Password: linaro
-(rockpi4b) Setup wifi.
+Setup wifi.
 Disable power saving, auto suspend and screen saver.
 sudo apt install net-tools openssh-server pulseaudio-utils
 sudo ifconfig
@@ -88,7 +88,7 @@ sync
 free
 sudo update-initramfs -u -k $(uname -r)
 sudo vi /boot/grub/grub.cfg ( change to:
-   initrd /boot/initrd.img-6.18.0-dirty
+   initrd /boot/initrd.img-6.19.0-dirty
 )
 sync
 sudo reboot
@@ -127,7 +127,7 @@ cd ../
 ~/yt-dlp/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' 3qrKjywjo7Q -o swan.mp4 --postprocessor-args " -c:v libx264 -b:v 2M -c:a copy"
 )
 
-mpv --hwdec=auto-copy swan.mp4
+mpv swan.mp4
 ffplay -autoexit swan.mp4
 cvlc --gl=wgl --glconv=any swan.mp4
 
